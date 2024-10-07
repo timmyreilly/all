@@ -1,0 +1,65 @@
+#  Create Network 
+---
+- name: Check env parameters
+  include: check_env_params.yml
+
+- name: build basic Network
+  any_errors_fatal: true
+  hosts:
+    - localhost
+  gather_facts: true
+
+  pre_tasks: 
+    - name: generate new module ID if not defined 
+      set_fact: 
+        module_state_id: "{{ 999 | random }}"
+      when: module_id == "" 
+
+  vars:
+    - good_vnet_name_example: "[\"10.175.0.0/16\"]"
+    - good_address_space_example: "[\"10.175.1.0/24\",\"10.175.2.0/24\"]"
+    - storage_access_key: "{{ lookup('env', 'ARM_ACCESS_KEY') | mandatory }}"
+    - storage_account_name: "{{ lookup('env', 'STORAGE_ACCOUNT_NAME') | mandatory }}"   
+    - networking_module_vars:
+        subscription_id: "{{ lookup('env','ARM_SUBSCRIPTION_ID') }}"
+        client_id: "{{ lookup('env','ARM_CLIENT_ID') }}"
+        client_secret: "{{ lookup('env','ARM_CLIENT_SECRET') }}"
+        tenant_id: "{{ lookup('env','ARM_TENANT_ID') }}"
+        region: "{{ location | mandatory }}" 
+        resource_group_name: "{{ resource_group_name | mandatory }}" 
+        name: "{{ resource_group_name | mandatory }}" 
+        vnet_name: "{{ vnet_name | mandatory }}" 
+        vnet_address_space: "{{ vnet_address_space | string }}"  #  "vnet_address_space":"[\"10.191.0.0/16\"]"
+        subnets: "{{ subnet_address_spaces | string }}"  # "subnet_address_spaces":"[\"10.191.1.0/24\",\"10.191.2.0/24\"]" 
+        tag_environment: dev 
+        tag_module_id: "{{ module_state_id | default(module_id) }}"
+        tag_module_type: basic_network 
+        # network_service_endpoints: "{{ lookup('env','NETWORK_SERVICE_ENDPOINTS') | string }}"
+        # network_dns_servers: "{{ lookup('env','NETWORK_DNS_SERVERS') | string }}"
+
+  # Create Network
+  tasks:
+    - name: peek networking_module_vars variables
+      debug:
+        msg: "{{ networking_module_vars }}" 
+
+    - name: peek var  
+      debug: 
+        var: networking_module_vars
+            
+    - name: set terraform directory
+      set_fact:
+        terraform_dir: "../../terraform/basic_network/"
+
+    - name: apply tf infrastructure
+      terraform:
+        project_path: "{{ terraform_dir }}"
+        state: present
+        force_init: true
+        variables: "{{ networking_module_vars }}"
+        backend_config: 
+          key: "{{ networking_module_vars.tag_module_type + networking_module_vars.tag_module_id + '.tfstate' }}" 
+          container_name: state 
+          storage_account_name: "{{ storage_account_name }}"
+          access_key: "{{ storage_access_key }}"
+      register: network_resources

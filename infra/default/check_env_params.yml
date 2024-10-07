@@ -1,0 +1,32 @@
+---
+- name: Check network module params
+  hosts:
+    - localhost
+  tasks:
+    - name: Get all env
+      debug:
+        msg: "{{ ansible_env }}"
+    - name: assert env vars
+      assert:
+        that:
+          - "lookup('env', 'ARM_CLIENT_ID')"
+          - "lookup('env', 'ARM_CLIENT_SECRET')"
+          - "lookup('env', 'ARM_SUBSCRIPTION_ID')"
+          - "lookup('env', 'ARM_TENANT_ID')"
+        fail_msg: >
+          "Need to set your env secrets!
+          This might help if you have a .env 'export $(egrep -v '^#' .env | xargs )'
+          or 'export $(xargs <.env)'"
+
+    # - name: "Verify that required string variables are defined"
+    #   fail:
+    #     msg: >  
+    #       "Variable '{{ item }}' is not defined"
+    #       Make sure you pass all required parameters that this role requires
+    #       ansible-playbook src/modules/network/build_infrastructure.yml 
+    #       -v 
+    #       --extra-vars '{"resource_group_name":"timrgthree", "vnet_name":"vnetThree", "subnet_address_spaces":"[\"10.191.1.0/24\",\"10.191.2.0/24\"]", "location":"westus", "vnet_address_space":"[\"10.175.0.0/16\"]" }'
+    #   when: item not in vars 
+    #   with_items:
+    #     - vnet_address_space
+    #     - subnet_address_spaces
