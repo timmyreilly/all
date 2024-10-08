@@ -2,6 +2,7 @@ import asyncio
 import json
 from dataclasses import dataclass
 import os
+import pytest
 from typing import Any, Dict
 # from aiohttp import ClientSession
 
@@ -63,3 +64,98 @@ class AzureGroundednessService:
     #     except Exception as e:
     #         print(f"Failed to verify statements: {e}")
     #         raise
+
+
+from unittest.mock import patch, Mock
+
+
+
+# Pytest fixtures for setup
+@pytest.fixture
+def env():
+    # Set up the environment with valid values
+    env = AzureGroundednessServiceEnv()
+    env.azure_groundedness_endpoint = "https://test-endpoint.cognitiveservices.azure.com"
+    env.azure_groundedness_subscription_key = "valid_subscription_key"
+    env.azure_groundedness_full_endpoint = f"{env.azure_groundedness_endpoint}/contentsafety/text:detectGroundedness?api-version=2024-09-15-preview"
+    return env
+
+@pytest.fixture
+def service(env):
+    return AzureGroundednessService(env=env)
+
+@pytest.fixture
+def payload():
+    return {
+        "domain": "Generic",
+        "task": "QnA",
+        "qna": {
+            "query": "How much does she currently get paid per hour at the bank?"
+        },
+        "text": "12/hour",
+        "groundingSources": [
+            "Sample grounding source text..."
+        ],
+        "reasoning": False
+    }
+
+# Test cases using pytest
+def test_successful_verify_statements(service, payload):
+    """Test that a successful API call returns the expected result."""
+    with patch('requests.post') as mock_post:
+        # Mock the response to simulate a successful API call
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"result": "success"}
+        mock_post.return_value = mock_response
+
+        # Call the method
+        result = service.verify_statements_requests(payload)
+
+        # Assertions
+        assert result == {"result": "success"}
+        mock_post.assert_called_once_with(
+            url=service.endpoint,
+            headers=service.headers,
+            json=payload
+        )
+
+def test_verify_statements_404_error(service, payload):
+    """Test that a 404 error raises an HTTPError."""
+    with patch('requests.post') as mock_post:
+        # Mock the response to simulate a 404 Not Found error
+        mock_response = Mock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError(response=mock_response)
+        mock_response.status_code = 404
+        mock_response.text = 'Not Found'
+        mock_post.return_value = mock_response
+
+        # Call the method and assert that an HTTPError is raised
+        with pytest.raises(requests.exceptions.HTTPError):
+            service.verify_statements_requests(payload)
+
+        mock_post.assert_called_once_with(
+            url=service.endpoint,
+            headers=service.headers,
+            json=payload
+        )
+
+def test_verify_statements_invalid_credentials(service, payload):
+    """Test that invalid credentials raise an HTTPError."""
+    with patch('requests.post') as mock_post:
+        # Mock the response to simulate a 401 Unauthorized error
+        mock_response = Mock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError(response=mock_response)
+        mock_response.status_code = 401
+        mock_response.text = 'Unauthorized'
+        mock_post.return_value = mock_response
+
+        # Call the method and assert that an HTTPError is raised
+        with pytest.raises(requests.exceptions.HTTPError):
+            service.verify_statements_requests(payload)
+
+        mock_post.assert_called_once_with(
+            url=service.endpoint,
+            headers=service.headers,
+            json=payload
+        )
