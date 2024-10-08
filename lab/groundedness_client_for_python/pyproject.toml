@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.12"
 requests = "^2.32.3"
 azure-identity = "^1.18.0"
+lagom = "^2.6.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
