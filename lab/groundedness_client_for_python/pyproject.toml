@@ -11,6 +11,7 @@ requests = "^2.32.3"
 azure-identity = "^1.18.0"
 lagom = "^2.6.0"
 pytest = "^8.3.3"
+pytest-cov = "^5.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
