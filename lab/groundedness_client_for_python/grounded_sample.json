@@ -1,0 +1,49 @@
+{
+    "metadata": {}, 
+    "payloads": [
+        {
+            "domain": "Medical",
+            "task": "Summarization",
+            "text": "Ms Johnson has been in the hospital after experiencing a stroke.",
+            "groundingSources": [
+              "Our patient, Ms. Johnson, presented with persistent fatigue, unexplained weight loss, and frequent night sweats. After a series of tests, she was diagnosed with Hodgkin’s lymphoma, a type of cancer that affects the lymphatic system. The diagnosis was confirmed through a lymph node biopsy revealing the presence of Reed-Sternberg cells, a characteristic of this disease. She was further staged using PET-CT scans. Her treatment plan includes chemotherapy and possibly radiation therapy, depending on her response to treatment. The medical team remains optimistic about her prognosis given the high cure rate of Hodgkin’s lymphoma."
+            ],
+            "reasoning": false
+        },
+        {
+            "domain": "Medical",
+            "task": "Summarization",
+            "text": "Ms Johnson has Hodgkin's lymphona and we are optimistic about the treatment.",
+            "groundingSources": [
+              "Our patient, Ms. Johnson, presented with persistent fatigue, unexplained weight loss, and frequent night sweats. After a series of tests, she was diagnosed with Hodgkin’s lymphoma, a type of cancer that affects the lymphatic system. The diagnosis was confirmed through a lymph node biopsy revealing the presence of Reed-Sternberg cells, a characteristic of this disease. She was further staged using PET-CT scans. Her treatment plan includes chemotherapy and possibly radiation therapy, depending on her response to treatment. The medical team remains optimistic about her prognosis given the high cure rate of Hodgkin’s lymphoma."
+            ],
+            "reasoning": false
+        },
+        {
+            "domain": "Generic",
+            "task": "QnA",
+            "qna": {
+                "query": "How much does she currently get paid per hour at the bank?"
+            },
+            "text": "12/hour",
+            "groundingSources": [
+                "I'm 21 years old and I need to make a decision about the next two years of my life...",
+                "I just stared at the bank at 12/hour"
+            ],
+            "reasoning": false
+        },
+        {
+            "domain": "Generic",
+            "task": "QnA",
+            "qna": {
+                "query": "How much does she currently get paid per hour at the bank?"
+            },
+            "text": "12/hour",
+            "groundingSources": [
+                "I'm 21 years old and I need to make a decision about the next two years of my life...",
+                "I just stared at the bank at 15 dollars an hour"
+            ],
+            "reasoning": false
+        }  
+    ]
+}

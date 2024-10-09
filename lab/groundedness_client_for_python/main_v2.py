@@ -11,12 +11,13 @@ def main():
     groundedness_service = AzureGroundednessService(env=env)
 
     # Path to the JSON file
-    json_file_path = 'private_sample.json'
+    json_file_path = 'b_private_sample.json'
 
     # Check if the file exists
     if not os.path.exists(json_file_path):
         print(f"Error: File '{json_file_path}' not found.")
-        return
+        print(f"Using the default file 'grounded_sample.json'.")
+        json_file_path = 'grounded_sample.json'
 
     # Read the JSON file
     with open(json_file_path, 'r') as file:
