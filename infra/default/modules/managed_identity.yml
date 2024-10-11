@@ -1,0 +1,22 @@
+---
+- name: Setup Managed Identity using Azure CLI
+  hosts: localhost
+  vars:
+    managed_identity_name: myManagedIdentity
+    resource_group_name_content_safety: myResourceGroup
+    content_safety_location: westus
+  tasks:
+    - azure.azcollection.azure_rm_resourcegroup:
+        name: "{{ resource_group_name_content_safety }}"
+        location: "{{ content_safety_location }}"
+    # - name: Create a managed identity
+    #   azure.azcollection.azure_rm:
+    #     name: "{{ managed_identity_name }}"
+    #     resource_group: "{{ resource_group_name_content_safety }}"
+    #     location: "{{ content_safety_location }}"
+    #     state: present
+    #   register: managed_identity
+
+    - name: Display managed identity details
+      debug:
+        var: managed_identity

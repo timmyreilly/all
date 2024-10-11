@@ -17,6 +17,12 @@ sudo apt-add-repository --yes --update ppa:ansible/ansible
 sudo apt install -y ansible
 
 echo "================================================================================"
+echo "Installing Ansible Azure Collection"
+echo "================================================================================"
+ansible-galaxy collection install azure.azcollection
+
+
+echo "================================================================================"
 echo "Using Ansible to perform remaining configuration"
 echo "================================================================================"
 ansible-galaxy install -r requirements.yml
