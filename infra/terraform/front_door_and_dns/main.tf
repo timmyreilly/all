@@ -12,7 +12,6 @@ resource "azurerm_dns_zone" "dnszones_timmyreilly_com" {
   name                = var.dnszones_timmyreilly_com_name
   resource_group_name = azurerm_resource_group.main.name
 }
-
 resource "azurerm_app_service_domain" "domains_timmyreilly_com" {
   name                = var.domains_timmyreilly_com_name
   resource_group_name = azurerm_resource_group.main.name
@@ -68,6 +67,241 @@ resource "azurerm_app_service_domain" "domains_timmyreilly_com" {
   auto_renew = false
   tags       = {}
 }
+
+resource "azurerm_cdn_frontdoor_profile" "prodFrontDoor" {
+  name                = var.profiles_prodFrontDoor_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = "Global"
+  sku                 = "Standard_AzureFrontDoor"
+
+  tags = {
+    env = "prod"
+  }
+}
+
+resource "azurerm_cdn_frontdoor_endpoint" "t_home" {
+  name                = "t-home"
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  resource_group_name = azurerm_resource_group.main.name
+  enabled             = false
+}
+
+resource "azurerm_cdn_frontdoor_custom_domain" "iot_timmyreilly_com" {
+  name                = "iot-timmyreilly-com"
+  resource_group_name = azurerm_resource_group.main.name
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  host_name           = "iot.timmyreilly.com"
+
+  custom_https_configuration {
+    certificate_source = "CdnManagedCertificate"
+
+    cdn_managed_certificate {
+      minimum_tls_version = "TLS1_2"
+      certificate_type    = "Dedicated"
+    }
+  }
+}
+
+resource "azurerm_cdn_frontdoor_custom_domain" "vpn_timmyreilly_com" {
+  name                = "vpn-timmyreilly-com-0897"
+  resource_group_name = azurerm_resource_group.main.name
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  host_name           = "vpn.timmyreilly.com"
+
+  custom_https_configuration {
+    certificate_source = "CdnManagedCertificate"
+
+    cdn_managed_certificate {
+      minimum_tls_version = "TLS1_2"
+      certificate_type    = "Dedicated"
+    }
+  }
+}
+
+
+resource "azurerm_cdn_frontdoor_custom_domain" "moolah_timmyreilly_com" {
+  name                = "moolah-timmyreilly-com"
+  resource_group_name = azurerm_resource_group.main.name
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  host_name           = "moolah.timmyreilly.com"
+
+  custom_https_configuration {
+    certificate_source = "CdnManagedCertificate"
+
+    cdn_managed_certificate {
+      minimum_tls_version = "TLS1_2"
+      certificate_type    = "Dedicated"
+    }
+  }
+}
+
+
+# Example for iot.timmyreilly.com
+resource "azurerm_dns_txt_record" "iot_timmyreilly_com_validation" {
+  name                = azurerm_cdn_frontdoor_custom_domain.iot_timmyreilly_com.validation_properties[0].dns_txt_record_name
+  zone_name           = azurerm_dns_zone.dnszones_timmyreilly_com.name
+  resource_group_name = azurerm_resource_group.main.name
+  ttl                 = 3600
+  records             = [azurerm_cdn_frontdoor_custom_domain.iot_timmyreilly_com.validation_properties[0].validation_token]
+}
+
+# TODO: Include other domains
+
+
+# Origin groups
+resource "azurerm_cdn_frontdoor_origin_group" "default_origin_group" {
+  name                = "default-origin-group"
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  resource_group_name = azurerm_resource_group.main.name
+
+  health_probe_settings {
+    probe_request_type         = "HEAD"
+    probe_protocol             = "Http"
+    probe_path                 = "/"
+    probe_interval_in_seconds  = 100
+  }
+
+  load_balancing_settings {
+    sample_size                         = 4
+    successful_samples_required         = 3
+    additional_latency_in_milliseconds  = 50
+  }
+
+  session_affinity_enabled = false
+}
+
+resource "azurerm_cdn_frontdoor_origin_group" "storage_origin_group" {
+  name                = "storageorigingroup"
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  resource_group_name = azurerm_resource_group.main.name
+
+  health_probe_settings {
+    probe_request_type         = "HEAD"
+    probe_protocol             = "Http"
+    probe_path                 = "/"
+    probe_interval_in_seconds  = 255
+  }
+
+  load_balancing_settings {
+    sample_size                         = 4
+    successful_samples_required         = 3
+    additional_latency_in_milliseconds  = 50
+  }
+
+  session_affinity_enabled = false
+}
+
+resource "azurerm_cdn_frontdoor_origin_group" "timmyreillyazurewebsitesnet" {
+  name                = "timmyreillyazurewebsitesnet"
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  resource_group_name = azurerm_resource_group.main.name
+
+  health_probe_settings {
+    probe_request_type         = "HEAD"
+    probe_protocol             = "Http"
+    probe_path                 = "/"
+    probe_interval_in_seconds  = 100
+  }
+
+  load_balancing_settings {
+    sample_size                         = 4
+    successful_samples_required         = 3
+    additional_latency_in_milliseconds  = 50
+  }
+
+  session_affinity_enabled = false
+}
+
+resource "azurerm_cdn_frontdoor_origin" "azurewebsitestimmyreilly" {
+  name                = "azurewebsitestimmyreilly"
+  resource_group_name = azurerm_resource_group.main.name
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  origin_group_name   = azurerm_cdn_frontdoor_origin_group.timmyreillyazurewebsitesnet.name
+
+  host_name              = "timmyreilly.azurewebsites.net"
+  http_port              = 80
+  https_port             = 443
+  origin_host_header     = "timmyreilly.azurewebsites.net"
+  priority               = 1
+  weight                 = 1000
+  enabled                = true
+  certificate_name_check = true
+}
+
+resource "azurerm_cdn_frontdoor_origin" "default_origin" {
+  name                = "default-origin"
+  resource_group_name = azurerm_resource_group.main.name
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  origin_group_name   = azurerm_cdn_frontdoor_origin_group.default_origin_group.name
+
+  host_name              = "webstorage1february.blob.core.windows.net"
+  http_port              = 80
+  https_port             = 443
+  origin_host_header     = "webstorage1february.web.core.windows.net"
+  priority               = 1
+  weight                 = 1000
+  enabled                = true
+  certificate_name_check = true
+}
+
+resource "azurerm_cdn_frontdoor_origin" "staticwebappstorage" {
+  name                = "staticwebappstorage"
+  resource_group_name = azurerm_resource_group.main.name
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  origin_group_name   = azurerm_cdn_frontdoor_origin_group.storage_origin_group.name
+
+  host_name              = "webstorage1february.z5.web.core.windows.net"
+  http_port              = 80
+  https_port             = 443
+  origin_host_header     = "webstorage1february.z5.web.core.windows.net"
+  priority               = 1
+  weight                 = 1000
+  enabled                = true
+  certificate_name_check = true
+}
+
+resource "azurerm_cdn_frontdoor_route" "default_route" {
+  name                = "default-route"
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  endpoint_name       = azurerm_cdn_frontdoor_endpoint.t_home.name
+  resource_group_name = azurerm_resource_group.main.name
+
+  origin_group_name = azurerm_cdn_frontdoor_origin_group.storage_origin_group.name
+
+  accepted_protocols   = ["Http", "Https"]
+  patterns_to_match    = ["/*"]
+  forwarding_protocol  = "MatchRequest"
+  https_redirect       = true
+  link_to_default_domain = true
+
+  custom_domain_ids = [
+    azurerm_cdn_frontdoor_custom_domain.timmyreilly_com.id
+  ]
+}
+
+resource "azurerm_cdn_frontdoor_route" "private_network_routing" {
+  name                = "private-network-routing"
+  profile_name        = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
+  endpoint_name       = azurerm_cdn_frontdoor_endpoint.t_home.name
+  resource_group_name = azurerm_resource_group.main.name
+
+  origin_group_name = azurerm_cdn_frontdoor_origin_group.default_origin_group.name
+
+  accepted_protocols   = ["Http", "Https"]
+  patterns_to_match    = ["/*"]
+  forwarding_protocol  = "MatchRequest"
+  https_redirect       = true
+  link_to_default_domain = false
+
+  custom_domain_ids = [
+    azurerm_cdn_frontdoor_custom_domain.vpn_timmyreilly_com.id
+  ]
+}
+
+
+# Back to infra less networking 
+
+
 
 resource "azurerm_monitor_autoscale_setting" "autoscalesettings_Default1_Default_Web_WestUS" {
   name                = var.autoscalesettings_Default1_Default_Web_WestUS_name

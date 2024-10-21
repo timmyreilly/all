@@ -158,3 +158,22 @@ variable "profiles_prodFrontDoor_externalid" {
   default     = "/subscriptions/e335a81a-26bb-48bb-b4fe-63a9754e111a/resourceGroups/WebHome1/providers/Microsoft.Cdn/profiles/prodFrontDoor"
   description = "External ID for the Front Door profile"
 }
+
+variable "profiles_prodFrontDoor_name" {
+  type        = string
+  default     = "prodFrontDoor"
+  description = "Name of the Azure Front Door profile"
+}
+
+variable "dnszones_timmyreilly_com_externalid" {
+  type        = string
+  default     = "/subscriptions/e335a81a-26bb-48bb-b4fe-63a9754e111a/resourceGroups/Default-Web-WestUS/providers/Microsoft.Network/dnszones/timmyreilly.com"
+  description = "External ID of the DNS zone timmyreilly.com"
+}
+
+variable "frontdoorwebapplicationfirewallpolicies_webFirewallProdOne_externalid" {
+  type        = string
+  default     = "/subscriptions/e335a81a-26bb-48bb-b4fe-63a9754e111a/resourceGroups/WebHome1/providers/Microsoft.Network/frontdoorwebapplicationfirewallpolicies/webFirewallProdOne"
+  description = "External ID of the WAF policy webFirewallProdOne"
+}
+
