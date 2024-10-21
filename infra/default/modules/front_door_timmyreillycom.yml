@@ -1,0 +1,25 @@
+#  Create the Front Door Service for timmyreilly.com
+---
+- name: build basic Groundedness Service
+  any_errors_fatal: true
+  hosts:
+    - localhost
+  gather_facts: true
+
+  pre_tasks: 
+    - name: generate new module ID if not defined 
+      set_fact: 
+        module_state_id: "{{ 999 | random }}"
+      when: module_id == "" 
+
+  vars: 
+   - storage_access_key: "{{ lookup('env', 'ARM_ACCESS_KEY') | mandatory }}"
+   - storage_account_name: "{{ lookup('env', 'STORAGE_ACCOUNT_NAME') | mandatory }}"   
+   - front_door_vars:
+            resource_group_name: "{{ resource_group_name | mandatory }}"
+            front_door_name: "{{ front_door_name | mandatory }}"
+            front_door_backend_pool_name: "{{ front_door_backend_pool_name | mandatory }}"
+            front_door_frontend_endpoint_name: "{{ front_door_frontend_endpoint_name | mandatory }}"
+            front_door_routing_rule_name: "{{ front_door_routing_rule_name | mandatory }}"
+            front_door_health_probe_name: "{{ front_door_health_probe_name | mandatory }}"
+            
