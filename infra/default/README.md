@@ -3,8 +3,14 @@
 ## Single Module
 
 ```
+source ../../../.env
+```
+
+```
 $ cd ../default/modules
 $ ansible-playbook groundedness.yml -vv --extra-vars "@../my_vars.yml"
+
+$ ansible-playbook front_door_and_dns_timmyreillycom.yml -vv --extra-vars "@../my_vars.yml"
 ```
 
 
