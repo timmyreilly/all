@@ -18,122 +18,122 @@ variable "location_west_us" {
   description = "Location for West US resources"
 }
 
-# SecureString Parameters
-variable "domains_timmyreilly_com_email" {
-  type      = string
-  sensitive = true
-}
+# # SecureString Parameters
+# variable "domains_timmyreilly_com_email" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_nameFirst" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_nameFirst" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_nameLast" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_nameLast" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_phone" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_phone" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_email_1" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_email_1" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_nameFirst_1" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_nameFirst_1" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_nameLast_1" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_nameLast_1" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_phone_1" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_phone_1" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_email_2" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_email_2" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_nameFirst_2" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_nameFirst_2" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_nameLast_2" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_nameLast_2" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_phone_2" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_phone_2" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_email_3" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_email_3" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_nameFirst_3" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_nameFirst_3" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_nameLast_3" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_nameLast_3" {
+#   type      = string
+#   sensitive = true
+# }
 
-variable "domains_timmyreilly_com_phone_3" {
-  type      = string
-  sensitive = true
-}
+# variable "domains_timmyreilly_com_phone_3" {
+#   type      = string
+#   sensitive = true
+# }
 
-# Backup Parameters
-variable "backups" {
-  description = "List of backup configurations"
-  type = list(object({
-    id                  = string
-    storage_account_url = string
-    overwrite           = bool
-    blob_name           = string
-  }))
-}
+# # Backup Parameters
+# variable "backups" {
+#   description = "List of backup configurations"
+#   type = list(object({
+#     id                  = string
+#     storage_account_url = string
+#     overwrite           = bool
+#     blob_name           = string
+#   }))
+# }
 
-# String Parameters with Defaults
-variable "sites_timmyreilly_name" {
-  type        = string
-  default     = "timmyreilly"
-  description = "Name of the timmyreilly site"
-}
+# # String Parameters with Defaults
+# variable "sites_timmyreilly_name" {
+#   type        = string
+#   default     = "timmyreilly"
+#   description = "Name of the timmyreilly site"
+# }
 
-variable "sites_FinalProtocol_name" {
-  type        = string
-  default     = "FinalProtocol"
-  description = "Name of the FinalProtocol site"
-}
+# variable "sites_FinalProtocol_name" {
+#   type        = string
+#   default     = "FinalProtocol"
+#   description = "Name of the FinalProtocol site"
+# }
 
-variable "serverfarms_Default1_name" {
-  type        = string
-  default     = "Default1"
-  description = "Name of the Default1 App Service Plan"
-}
+# variable "serverfarms_Default1_name" {
+#   type        = string
+#   default     = "Default1"
+#   description = "Name of the Default1 App Service Plan"
+# }
 
-variable "components_timmyreilly_name" {
-  type        = string
-  default     = "timmyreilly"
-  description = "Name of the Application Insights component"
-}
+# variable "components_timmyreilly_name" {
+#   type        = string
+#   default     = "timmyreilly"
+#   description = "Name of the Application Insights component"
+# }
 
 variable "dnszones_timmyreilly_com_name" {
   type        = string
@@ -141,23 +141,23 @@ variable "dnszones_timmyreilly_com_name" {
   description = "DNS zone name"
 }
 
-variable "domains_timmyreilly_com_name" {
-  type        = string
-  default     = "timmyreilly.com"
-  description = "Domain name"
-}
+# variable "domains_timmyreilly_com_name" {
+#   type        = string
+#   default     = "timmyreilly.com"
+#   description = "Domain name"
+# }
 
-variable "autoscalesettings_Default1_Default_Web_WestUS_name" {
-  type        = string
-  default     = "Default1-Default-Web-WestUS"
-  description = "Name of the autoscale setting"
-}
+# variable "autoscalesettings_Default1_Default_Web_WestUS_name" {
+#   type        = string
+#   default     = "Default1-Default-Web-WestUS"
+#   description = "Name of the autoscale setting"
+# }
 
-variable "profiles_prodFrontDoor_externalid" {
-  type        = string
-  default     = "/subscriptions/e335a81a-26bb-48bb-b4fe-63a9754e111a/resourceGroups/WebHome1/providers/Microsoft.Cdn/profiles/prodFrontDoor"
-  description = "External ID for the Front Door profile"
-}
+# variable "profiles_prodFrontDoor_externalid" {
+#   type        = string
+#   default     = "/subscriptions/e335a81a-26bb-48bb-b4fe-63a9754e111a/resourceGroups/WebHome1/providers/Microsoft.Cdn/profiles/prodFrontDoor"
+#   description = "External ID for the Front Door profile"
+# }
 
 variable "profiles_prodFrontDoor_name" {
   type        = string
@@ -165,15 +165,15 @@ variable "profiles_prodFrontDoor_name" {
   description = "Name of the Azure Front Door profile"
 }
 
-variable "dnszones_timmyreilly_com_externalid" {
-  type        = string
-  default     = "/subscriptions/e335a81a-26bb-48bb-b4fe-63a9754e111a/resourceGroups/Default-Web-WestUS/providers/Microsoft.Network/dnszones/timmyreilly.com"
-  description = "External ID of the DNS zone timmyreilly.com"
-}
+# variable "dnszones_timmyreilly_com_externalid" {
+#   type        = string
+#   default     = "/subscriptions/e335a81a-26bb-48bb-b4fe-63a9754e111a/resourceGroups/Default-Web-WestUS/providers/Microsoft.Network/dnszones/timmyreilly.com"
+#   description = "External ID of the DNS zone timmyreilly.com"
+# }
 
-variable "frontdoorwebapplicationfirewallpolicies_webFirewallProdOne_externalid" {
-  type        = string
-  default     = "/subscriptions/e335a81a-26bb-48bb-b4fe-63a9754e111a/resourceGroups/WebHome1/providers/Microsoft.Network/frontdoorwebapplicationfirewallpolicies/webFirewallProdOne"
-  description = "External ID of the WAF policy webFirewallProdOne"
-}
+# variable "frontdoorwebapplicationfirewallpolicies_webFirewallProdOne_externalid" {
+#   type        = string
+#   default     = "/subscriptions/e335a81a-26bb-48bb-b4fe-63a9754e111a/resourceGroups/WebHome1/providers/Microsoft.Network/frontdoorwebapplicationfirewallpolicies/webFirewallProdOne"
+#   description = "External ID of the WAF policy webFirewallProdOne"
+# }
 

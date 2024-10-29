@@ -71,42 +71,42 @@
       location_west_us: "{{ location_west_us | default('West US') }}"
 
       # SecureString Parameters (Sensitive Data)
-      domains_timmyreilly_com_email: "{{ domains_timmyreilly_com_email | mandatory }}"
-      domains_timmyreilly_com_nameFirst: "{{ domains_timmyreilly_com_nameFirst | mandatory }}"
-      domains_timmyreilly_com_nameLast: "{{ domains_timmyreilly_com_nameLast | mandatory }}"
-      domains_timmyreilly_com_phone: "{{ domains_timmyreilly_com_phone | mandatory }}"
+      # domains_timmyreilly_com_email: "{{ domains_timmyreilly_com_email | mandatory }}"
+      # domains_timmyreilly_com_nameFirst: "{{ domains_timmyreilly_com_nameFirst | mandatory }}"
+      # domains_timmyreilly_com_nameLast: "{{ domains_timmyreilly_com_nameLast | mandatory }}"
+      # domains_timmyreilly_com_phone: "{{ domains_timmyreilly_com_phone | mandatory }}"
 
-      domains_timmyreilly_com_email_1: "{{ domains_timmyreilly_com_email_1 | mandatory }}"
-      domains_timmyreilly_com_nameFirst_1: "{{ domains_timmyreilly_com_nameFirst_1 | mandatory }}"
-      domains_timmyreilly_com_nameLast_1: "{{ domains_timmyreilly_com_nameLast_1 | mandatory }}"
-      domains_timmyreilly_com_phone_1: "{{ domains_timmyreilly_com_phone_1 | mandatory }}"
+      # domains_timmyreilly_com_email_1: "{{ domains_timmyreilly_com_email_1 | mandatory }}"
+      # domains_timmyreilly_com_nameFirst_1: "{{ domains_timmyreilly_com_nameFirst_1 | mandatory }}"
+      # domains_timmyreilly_com_nameLast_1: "{{ domains_timmyreilly_com_nameLast_1 | mandatory }}"
+      # domains_timmyreilly_com_phone_1: "{{ domains_timmyreilly_com_phone_1 | mandatory }}"
 
-      domains_timmyreilly_com_email_2: "{{ domains_timmyreilly_com_email_2 | mandatory }}"
-      domains_timmyreilly_com_nameFirst_2: "{{ domains_timmyreilly_com_nameFirst_2 | mandatory }}"
-      domains_timmyreilly_com_nameLast_2: "{{ domains_timmyreilly_com_nameLast_2 | mandatory }}"
-      domains_timmyreilly_com_phone_2: "{{ domains_timmyreilly_com_phone_2 | mandatory }}"
+      # domains_timmyreilly_com_email_2: "{{ domains_timmyreilly_com_email_2 | mandatory }}"
+      # domains_timmyreilly_com_nameFirst_2: "{{ domains_timmyreilly_com_nameFirst_2 | mandatory }}"
+      # domains_timmyreilly_com_nameLast_2: "{{ domains_timmyreilly_com_nameLast_2 | mandatory }}"
+      # domains_timmyreilly_com_phone_2: "{{ domains_timmyreilly_com_phone_2 | mandatory }}"
 
-      domains_timmyreilly_com_email_3: "{{ domains_timmyreilly_com_email_3 | mandatory }}"
-      domains_timmyreilly_com_nameFirst_3: "{{ domains_timmyreilly_com_nameFirst_3 | mandatory }}"
-      domains_timmyreilly_com_nameLast_3: "{{ domains_timmyreilly_com_nameLast_3 | mandatory }}"
-      domains_timmyreilly_com_phone_3: "{{ domains_timmyreilly_com_phone_3 | mandatory }}"
+      # domains_timmyreilly_com_email_3: "{{ domains_timmyreilly_com_email_3 | mandatory }}"
+      # domains_timmyreilly_com_nameFirst_3: "{{ domains_timmyreilly_com_nameFirst_3 | mandatory }}"
+      # domains_timmyreilly_com_nameLast_3: "{{ domains_timmyreilly_com_nameLast_3 | mandatory }}"
+      # domains_timmyreilly_com_phone_3: "{{ domains_timmyreilly_com_phone_3 | mandatory }}"
 
-      # Backup Parameters
-      backups: "{{ backups | default([]) }}"
+      # # Backup Parameters
+      # backups: "{{ backups | default([]) }}"
 
-      # String Parameters with Defaults
-      sites_timmyreilly_name: "{{ sites_timmyreilly_name | default('timmyreilly') }}"
-      sites_FinalProtocol_name: "{{ sites_FinalProtocol_name | default('FinalProtocol') }}"
-      serverfarms_Default1_name: "{{ serverfarms_Default1_name | default('Default1') }}"
-      components_timmyreilly_name: "{{ components_timmyreilly_name | default('timmyreilly') }}"
-      dnszones_timmyreilly_com_name: "{{ dnszones_timmyreilly_com_name | default('timmyreilly.com') }}"
-      domains_timmyreilly_com_name: "{{ domains_timmyreilly_com_name | default('timmyreilly.com') }}"
-      autoscalesettings_Default1_Default_Web_WestUS_name: "{{ autoscalesettings_Default1_Default_Web_WestUS_name | default('Default1-Default-Web-WestUS') }}"
+      # # String Parameters with Defaults
+      # sites_timmyreilly_name: "{{ sites_timmyreilly_name | default('timmyreilly') }}"
+      # sites_FinalProtocol_name: "{{ sites_FinalProtocol_name | default('FinalProtocol') }}"
+      # serverfarms_Default1_name: "{{ serverfarms_Default1_name | default('Default1') }}"
+      # components_timmyreilly_name: "{{ components_timmyreilly_name | default('timmyreilly') }}"
+      # dnszones_timmyreilly_com_name: "{{ dnszones_timmyreilly_com_name | default('timmyreilly.com') }}"
+      # domains_timmyreilly_com_name: "{{ domains_timmyreilly_com_name | default('timmyreilly.com') }}"
+      # autoscalesettings_Default1_Default_Web_WestUS_name: "{{ autoscalesettings_Default1_Default_Web_WestUS_name | default('Default1-Default-Web-WestUS') }}"
 
-      profiles_prodFrontDoor_externalid: "{{ profiles_prodFrontDoor_externalid | mandatory }}"
+      # profiles_prodFrontDoor_externalid: "{{ profiles_prodFrontDoor_externalid | mandatory }}"
       profiles_prodFrontDoor_name: "{{ profiles_prodFrontDoor_name | default('prodFrontDoor') }}"
-      dnszones_timmyreilly_com_externalid: "{{ dnszones_timmyreilly_com_externalid | mandatory }}"
-      frontdoorwebapplicationfirewallpolicies_webFirewallProdOne_externalid: "{{ frontdoorwebapplicationfirewallpolicies_webFirewallProdOne_externalid | mandatory }}"
+      # dnszones_timmyreilly_com_externalid: "{{ dnszones_timmyreilly_com_externalid | mandatory }}"
+      # frontdoorwebapplicationfirewallpolicies_webFirewallProdOne_externalid: "{{ frontdoorwebapplicationfirewallpolicies_webFirewallProdOne_externalid | mandatory }}"
 
   tasks:
     - name: Set Terraform directory
@@ -117,8 +117,8 @@
       community.general.terraform:
         project_path: "{{ terraform_dir }}"
         state: present
-        force_init: true
-        init_reconfigure: true
+        force_init: false
+        init_reconfigure: false
         variables: "{{ terraform_vars }}"
         backend_config:
           key: "{{ resource_group_name }}.tfstate"

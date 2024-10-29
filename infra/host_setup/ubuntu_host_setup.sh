@@ -25,5 +25,5 @@ ansible-galaxy collection install azure.azcollection
 echo "================================================================================"
 echo "Using Ansible to perform remaining configuration"
 echo "================================================================================"
-ansible-galaxy install -r requirements.yml
+# ansible-galaxy install -r requirements.yml
 sudo ansible-playbook ubuntu_setup.yml -vvv
