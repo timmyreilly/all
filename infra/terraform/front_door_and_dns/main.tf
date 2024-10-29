@@ -247,18 +247,19 @@ resource "azurerm_cdn_frontdoor_origin" "staticwebappstorage" {
 }
 
 # # Create Routes
-# resource "azurerm_cdn_frontdoor_route" "default_route" {
-#   name                          = "default-route"
-#   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.trei_home.id
-#   cdn_frontdoor_profile_id      = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
-#   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.storage_origin_group.id
-#   supported_protocols           = ["Http", "Https"]
-#   patterns_to_match             = ["/*"]
-#   forwarding_protocol           = "MatchRequest"
-#   https_redirect_enabled        = true
-#   custom_domains                = [azurerm_cdn_frontdoor_custom_domain.timmyreilly_com.id]
-#   # enable_caching                = false
-# }
+resource "azurerm_cdn_frontdoor_route" "default_route" {
+  name                          = "default-route"
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.trei_home.id
+  # cdn_frontdoor_profile_id      = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.storage_origin_group.id
+  supported_protocols           = ["Http", "Https"]
+  patterns_to_match             = ["/*"]
+  forwarding_protocol           = "MatchRequest"
+  https_redirect_enabled        = true
+  cdn_frontdoor_origin_ids      = []
+  # custom_domains                = [azurerm_cdn_frontdoor_custom_domain.moolah_timmyreilly_com.id]
+  # enable_caching                = false
+}
 
 # resource "azurerm_cdn_frontdoor_route" "private_network_routing" {
 #   name                          = "private-network-routing"
