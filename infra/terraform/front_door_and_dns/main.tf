@@ -152,41 +152,41 @@ resource "azurerm_dns_txt_record" "moolah_timmyreilly_com_validation" {
 # # ...
 
 # # Create Origin Groups
-# resource "azurerm_cdn_frontdoor_origin_group" "default_origin_group" {
-#   name                      = "default-origin-group"
-#   cdn_frontdoor_profile_id  = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
+resource "azurerm_cdn_frontdoor_origin_group" "default_origin_group" {
+  name                      = "default-origin-group"
+  cdn_frontdoor_profile_id  = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
 
-#   load_balancing {
-#     # additional_latency_milliseconds = 50
-#     sample_size                     = 4
-#     successful_samples_required     = 3
-#   }
+  load_balancing {
+    # additional_latency_milliseconds = 50
+    sample_size                     = 4
+    successful_samples_required     = 3
+  }
 
-#   health_probe {
-#     path                    = "/"
-#     protocol                = "Http"
-#     interval_in_seconds     = 100
-#     request_type            = "HEAD"
-#   }
-# }
+  health_probe {
+    path                    = "/"
+    protocol                = "Http"
+    interval_in_seconds     = 100
+    request_type            = "HEAD"
+  }
+}
 
-# resource "azurerm_cdn_frontdoor_origin_group" "storage_origin_group" {
-#   name                      = "storageorigingroup"
-#   cdn_frontdoor_profile_id  = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
+resource "azurerm_cdn_frontdoor_origin_group" "storage_origin_group" {
+  name                      = "storageorigingroup"
+  cdn_frontdoor_profile_id  = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
 
-#   load_balancing {
-#     # additional_latency_milliseconds = 50
-#     sample_size                     = 4
-#     successful_samples_required     = 3
-#   }
+  load_balancing {
+    # additional_latency_milliseconds = 50
+    sample_size                     = 4
+    successful_samples_required     = 3
+  }
 
-#   health_probe {
-#     path                    = "/"
-#     protocol                = "Http"
-#     interval_in_seconds     = 255
-#     request_type            = "HEAD"
-#   }
-# }
+  health_probe {
+    path                    = "/"
+    protocol                = "Http"
+    interval_in_seconds     = 255
+    request_type            = "HEAD"
+  }
+}
 
 # resource "azurerm_cdn_frontdoor_origin_group" "timmyreillyazurewebsitesnet" {
 #   name                      = "timmyreillyazurewebsitesnet"
@@ -220,36 +220,36 @@ resource "azurerm_dns_txt_record" "moolah_timmyreilly_com_validation" {
 #   certificate_name_check_enabled = true
 # }
 
-# resource "azurerm_cdn_frontdoor_origin" "default_origin" {
-#   name                          = "default-origin"
-#   host_name                     = "webstorage1february.blob.core.windows.net"
-#   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.default_origin_group.id
-#   http_port                     = 80
-#   https_port                    = 443
-#   origin_host_header            = "webstorage1february.web.core.windows.net"
-#   priority                      = 1
-#   weight                        = 1000
-#   enabled                       = true
-#   certificate_name_check_enabled = true
-# }
+resource "azurerm_cdn_frontdoor_origin" "default_origin" {
+  name                          = "default-origin"
+  host_name                     = "webstorage1february.blob.core.windows.net"
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.default_origin_group.id
+  http_port                     = 80
+  https_port                    = 443
+  origin_host_header            = "webstorage1february.web.core.windows.net"
+  priority                      = 1
+  weight                        = 1000
+  enabled                       = true
+  certificate_name_check_enabled = true
+}
 
-# resource "azurerm_cdn_frontdoor_origin" "staticwebappstorage" {
-#   name                          = "staticwebappstorage"
-#   host_name                     = "webstorage1february.z5.web.core.windows.net"
-#   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.storage_origin_group.id
-#   http_port                     = 80
-#   https_port                    = 443
-#   origin_host_header            = "webstorage1february.z5.web.core.windows.net"
-#   priority                      = 1
-#   weight                        = 1000
-#   enabled                       = true
-#   certificate_name_check_enabled = true
-# }
+resource "azurerm_cdn_frontdoor_origin" "staticwebappstorage" {
+  name                          = "staticwebappstorage"
+  host_name                     = "webstorage1february.z5.web.core.windows.net"
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.storage_origin_group.id
+  http_port                     = 80
+  https_port                    = 443
+  origin_host_header            = "webstorage1february.z5.web.core.windows.net"
+  priority                      = 1
+  weight                        = 1000
+  enabled                       = true
+  certificate_name_check_enabled = true
+}
 
 # # Create Routes
 # resource "azurerm_cdn_frontdoor_route" "default_route" {
 #   name                          = "default-route"
-#   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.t_home.id
+#   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.trei_home.id
 #   cdn_frontdoor_profile_id      = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
 #   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.storage_origin_group.id
 #   supported_protocols           = ["Http", "Https"]
@@ -262,7 +262,7 @@ resource "azurerm_dns_txt_record" "moolah_timmyreilly_com_validation" {
 
 # resource "azurerm_cdn_frontdoor_route" "private_network_routing" {
 #   name                          = "private-network-routing"
-#   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.t_home.id
+#   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.trei_home.id
 #   cdn_frontdoor_profile_id      = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
 #   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.default_origin_group.id
 #   supported_protocols           = ["Http", "Https"]
@@ -274,22 +274,22 @@ resource "azurerm_dns_txt_record" "moolah_timmyreilly_com_validation" {
 # }
 
 # # Create DNS Records
-# resource "azurerm_dns_a_record" "a_record_root" {
-#   name                = "@"
-#   zone_name           = azurerm_dns_zone.dnszones_timmyreilly_com.name
-#   resource_group_name = azurerm_resource_group.main.name
-#   ttl                 = 3600
+resource "azurerm_dns_a_record" "a_record_root" {
+  name                = "@"
+  zone_name           = azurerm_dns_zone.dnszones_timmyreilly_com.name
+  resource_group_name = azurerm_resource_group.main.name
+  ttl                 = 3600
 
-#   target_resource_id = azurerm_cdn_frontdoor_endpoint.t_home.id
-# }
+  target_resource_id = azurerm_cdn_frontdoor_endpoint.trei_home.id
+}
 
-# resource "azurerm_dns_cname_record" "cname_record_moolah" {
-#   name                = "moolah"
-#   zone_name           = azurerm_dns_zone.dnszones_timmyreilly_com.name
-#   resource_group_name = azurerm_resource_group.main.name
-#   ttl                 = 3600
-#   record              = azurerm_cdn_frontdoor_endpoint.t_home.host_name
-# }
+resource "azurerm_dns_cname_record" "cname_record_moolah" {
+  name                = "moolah"
+  zone_name           = azurerm_dns_zone.dnszones_timmyreilly_com.name
+  resource_group_name = azurerm_resource_group.main.name
+  ttl                 = 3600
+  record              = azurerm_cdn_frontdoor_endpoint.trei_home.host_name
+}
 
 # resource "azurerm_dns_txt_record" "txt_record_dnsauth" {
 #   name                = "_dnsauth"
