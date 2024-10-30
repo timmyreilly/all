@@ -51,7 +51,7 @@ resource "azurerm_cdn_frontdoor_endpoint" "afd_endpoint" {
 resource "azurerm_cdn_frontdoor_custom_domain" "moolah_timmyreilly_com" {
   name                      = "moolah-timmyreilly-com"
   cdn_frontdoor_profile_id  = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
-  host_name                 = "moolahb.timmyreilly.com"
+  host_name                 = "moolahb.dev.timmyreilly.com"
 
   tls {
     certificate_type = "ManagedCertificate"
@@ -130,6 +130,11 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
     compression_enabled           = true
     content_types_to_compress     = ["text/html", "text/javascript", "text/xml"]
   }
+}
+
+resource "azurerm_cdn_frontdoor_custom_domain_association" "moolah_domain" {
+  cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.moolah_timmyreilly_com.id
+  cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.default_route.id]
 }
 
 resource "azurerm_cdn_frontdoor_rule_set" "beginner_rule_set" {

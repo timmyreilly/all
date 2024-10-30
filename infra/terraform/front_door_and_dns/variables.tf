@@ -137,7 +137,7 @@ variable "location_west_us" {
 
 variable "dnszones_timmyreilly_com_name" {
   type        = string
-  default     = "devtimmyreilly.com"
+  default     = "dev.timmyreilly.com"
   description = "DNS zone name"
 }
 
