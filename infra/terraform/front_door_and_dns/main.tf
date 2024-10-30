@@ -48,10 +48,6 @@ resource "azurerm_cdn_frontdoor_endpoint" "afd_endpoint" {
   enabled                   = true
 }
 
-
-
-
-
 resource "azurerm_cdn_frontdoor_custom_domain" "moolah_timmyreilly_com" {
   name                      = "moolah-timmyreilly-com"
   cdn_frontdoor_profile_id  = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
@@ -75,8 +71,7 @@ resource "azurerm_dns_txt_record" "moolah_timmyreilly_com_validation" {
   }
 }
 
-
-# # Create Origin Groups
+# Create Origin Groups
 resource "azurerm_cdn_frontdoor_origin_group" "storage_origin_group" {
   name                      = "storageorigingroupb"
   cdn_frontdoor_profile_id  = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
@@ -93,7 +88,6 @@ resource "azurerm_cdn_frontdoor_origin_group" "storage_origin_group" {
     request_type            = "HEAD"
   }
 }
-
 
 data "azurerm_storage_account" "storage" {
   name                = "webstorage1february"
@@ -115,9 +109,7 @@ resource "azurerm_cdn_frontdoor_origin" "staticwebappstorage" {
   weight             = 1
 }
 
-
-
-# # Create Routes
+# Create Routes
 resource "azurerm_cdn_frontdoor_route" "default_route" {
   name                          = "default-route"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.trei_home.id
@@ -145,8 +137,6 @@ resource "azurerm_cdn_frontdoor_rule_set" "beginner_rule_set" {
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
 }
 
-
-
 # DNS CNAME Record for www.timmyreilly.com pointing to Front Door Endpoint
 resource "azurerm_dns_cname_record" "cname_record_www" {
   name                = "www"
@@ -156,10 +146,7 @@ resource "azurerm_dns_cname_record" "cname_record_www" {
   record              = azurerm_cdn_frontdoor_endpoint.afd_endpoint.host_name
 }
 
-
-
-
-# # Create DNS Records
+# Create DNS Records
 resource "azurerm_dns_a_record" "a_record_root" {
   name                = "@"
   zone_name           = azurerm_dns_zone.dnszones_timmyreilly_com.name
