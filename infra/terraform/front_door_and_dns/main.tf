@@ -50,17 +50,17 @@ resource "azurerm_cdn_frontdoor_endpoint" "afd_endpoint" {
 
 
 
-resource "azurerm_cdn_frontdoor_custom_domain" "root_custom_domain" {
-  name                     = "timmyreilly-com"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
-  dns_zone_id              = azurerm_dns_zone.dnszones_timmyreilly_com.id
-  host_name                = join(".", ["timmyreilly", azurerm_dns_zone.dnszones_timmyreilly_com.name])
+# resource "azurerm_cdn_frontdoor_custom_domain" "root_custom_domain" {
+#   name                     = "timmyreilly-com"
+#   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
+#   dns_zone_id              = azurerm_dns_zone.dnszones_timmyreilly_com.id
+#   host_name                = join(".", ["timmyreilly", azurerm_dns_zone.dnszones_timmyreilly_com.name])
 
-  tls {
-    certificate_type    = "ManagedCertificate"
-    minimum_tls_version = "TLS12"
-  }
-}
+#   tls {
+#     certificate_type    = "ManagedCertificate"
+#     minimum_tls_version = "TLS12"
+#   }
+# }
 
 
 resource "azurerm_cdn_frontdoor_custom_domain" "moolah_timmyreilly_com" {
@@ -89,25 +89,25 @@ resource "azurerm_dns_txt_record" "moolah_timmyreilly_com_validation" {
 
 
 # # Create Origin Groups
-resource "azurerm_cdn_frontdoor_origin_group" "default_origin_group" {
-  name                      = "default-origin-group"
-  cdn_frontdoor_profile_id  = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
+# resource "azurerm_cdn_frontdoor_origin_group" "default_origin_group" {
+#   name                      = "default-origin-group"
+#   cdn_frontdoor_profile_id  = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
 
-  load_balancing {
-    sample_size                     = 4
-    successful_samples_required     = 3
-  }
+#   load_balancing {
+#     sample_size                     = 4
+#     successful_samples_required     = 3
+#   }
 
-  health_probe {
-    path                    = "/"
-    protocol                = "Http"
-    interval_in_seconds     = 100
-    request_type            = "HEAD"
-  }
-}
+#   health_probe {
+#     path                    = "/"
+#     protocol                = "Http"
+#     interval_in_seconds     = 100
+#     request_type            = "HEAD"
+#   }
+# }
 
 resource "azurerm_cdn_frontdoor_origin_group" "storage_origin_group" {
-  name                      = "storageorigingroup"
+  name                      = "storageorigingroupb"
   cdn_frontdoor_profile_id  = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
 
   load_balancing {
@@ -123,34 +123,34 @@ resource "azurerm_cdn_frontdoor_origin_group" "storage_origin_group" {
   }
 }
 
-resource "azurerm_cdn_frontdoor_origin_group" "example" {
-  name                = "storage-origin-group"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
+# resource "azurerm_cdn_frontdoor_origin_group" "example" {
+#   name                = "storage-origin-group"
+#   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
 
-  load_balancing {
-    additional_latency_in_milliseconds = 0
-    sample_size                        = 16
-    successful_samples_required        = 3
-  }
-}
+#   load_balancing {
+#     additional_latency_in_milliseconds = 0
+#     sample_size                        = 16
+#     successful_samples_required        = 3
+#   }
+# }
 
 data "azurerm_storage_account" "storage" {
   name                = "webstorage1february"
   resource_group_name = "WebHome1"
 }
 
-resource "azurerm_cdn_frontdoor_profile" "afd_profile" {
-  name                = "beginner-profile"
-  resource_group_name = azurerm_resource_group.main.name
-  sku_name            = "Standard_AzureFrontDoor"
-}
+# resource "azurerm_cdn_frontdoor_profile" "afd_profile" {
+#   name                = "beginner-profile"
+#   resource_group_name = azurerm_resource_group.main.name
+#   sku_name            = "Standard_AzureFrontDoor"
+# }
 
-resource "azurerm_cdn_frontdoor_origin" "afd_origin" {
-  name                          = "storage-origin"
+resource "azurerm_cdn_frontdoor_origin" "staticwebappstorage" {
+  name                          = "staticwebappstoregeb"
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.storage_origin_group.id
   enabled                       = true
 
-  certificate_name_check_enabled = false
+  certificate_name_check_enabled = true
 
   host_name          = data.azurerm_storage_account.storage.primary_web_host
   http_port          = 80
@@ -162,31 +162,31 @@ resource "azurerm_cdn_frontdoor_origin" "afd_origin" {
 
 
 
-resource "azurerm_cdn_frontdoor_origin" "default_origin" {
-  name                          = "default-origin"
-  host_name                     = "webstorage1february.blob.core.windows.net"
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.default_origin_group.id
-  http_port                     = 80
-  https_port                    = 443
-  origin_host_header            = "webstorage1february.web.core.windows.net"
-  priority                      = 1
-  weight                        = 1000
-  enabled                       = true
-  certificate_name_check_enabled = true
-}
+# resource "azurerm_cdn_frontdoor_origin" "default_origin" {
+#   name                          = "default-origin"
+#   host_name                     = "webstorage1february.blob.core.windows.net"
+#   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.default_origin_group.id
+#   http_port                     = 80
+#   https_port                    = 443
+#   origin_host_header            = "webstorage1february.web.core.windows.net"
+#   priority                      = 1
+#   weight                        = 1000
+#   enabled                       = true
+#   certificate_name_check_enabled = true
+# }
 
-resource "azurerm_cdn_frontdoor_origin" "staticwebappstorage" {
-  name                          = "staticwebappstorage"
-  host_name                     = "webstorage1february.z5.web.core.windows.net"
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.storage_origin_group.id
-  http_port                     = 80
-  https_port                    = 443
-  origin_host_header            = "webstorage1february.z5.web.core.windows.net"
-  priority                      = 1
-  weight                        = 1000
-  enabled                       = true
-  certificate_name_check_enabled = true
-}
+# resource "azurerm_cdn_frontdoor_origin" "staticwebappstorage" {
+#   name                          = "staticwebappstorage"
+#   host_name                     = "webstorage1february.z5.web.core.windows.net"
+#   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.storage_origin_group.id
+#   http_port                     = 80
+#   https_port                    = 443
+#   origin_host_header            = "webstorage1february.z5.web.core.windows.net"
+#   priority                      = 1
+#   weight                        = 1000
+#   enabled                       = true
+#   certificate_name_check_enabled = true
+# }
 
 # # Create Routes
 resource "azurerm_cdn_frontdoor_route" "default_route" {
@@ -198,28 +198,9 @@ resource "azurerm_cdn_frontdoor_route" "default_route" {
   forwarding_protocol           = "MatchRequest"
   https_redirect_enabled        = true
   cdn_frontdoor_origin_ids      = []
-}
 
-resource "azurerm_cdn_frontdoor_rule_set" "beginner_rule_set" {
-  name                     = "BeginnerRuleSet"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.afd_profile.id
-}
 
-# Route to Redirect timmyreilly.com to www.timmyreilly.com
-resource "azurerm_cdn_frontdoor_route" "afd_route_www" {
-  name                          = "route-www"
-  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.trei_home.id
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.storage_origin_group.id
-  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.afd_origin.id]
-  cdn_frontdoor_rule_set_ids    = [azurerm_cdn_frontdoor_rule_set.beginner_rule_set.id]
-  enabled                       = true
-
-  forwarding_protocol    = "HttpsOnly"
-  https_redirect_enabled = true
-  patterns_to_match      = ["/*"]
-  supported_protocols    = ["Http", "Https"]
-
-  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.moolah_timmyreilly_com.id, azurerm_cdn_frontdoor_custom_domain.root_custom_domain.id]
+  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.moolah_timmyreilly_com.id]
   link_to_default_domain          = false
 
   cache {
@@ -229,6 +210,36 @@ resource "azurerm_cdn_frontdoor_route" "afd_route_www" {
     content_types_to_compress     = ["text/html", "text/javascript", "text/xml"]
   }
 }
+
+resource "azurerm_cdn_frontdoor_rule_set" "beginner_rule_set" {
+  name                     = "BeginnerRuleSet"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.prodFrontDoor.id
+}
+
+# # Route to Redirect timmyreilly.com to www.timmyreilly.com
+# resource "azurerm_cdn_frontdoor_route" "afd_route_www" {
+#   name                          = "route-www"
+#   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.trei_home.id
+#   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.storage_origin_group.id
+#   cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.afd_origin.id]
+#   cdn_frontdoor_rule_set_ids    = [azurerm_cdn_frontdoor_rule_set.beginner_rule_set.id]
+#   enabled                       = true
+
+#   forwarding_protocol    = "HttpsOnly"
+#   https_redirect_enabled = true
+#   patterns_to_match      = ["/*"]
+#   supported_protocols    = ["Http", "Https"]
+
+#   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.moolah_timmyreilly_com.id, azurerm_cdn_frontdoor_custom_domain.root_custom_domain.id]
+#   link_to_default_domain          = false
+
+#   cache {
+#     query_string_caching_behavior = "IgnoreSpecifiedQueryStrings"
+#     query_strings                 = ["account", "settings"]
+#     compression_enabled           = true
+#     content_types_to_compress     = ["text/html", "text/javascript", "text/xml"]
+#   }
+# }
 
 
 # DNS CNAME Record for www.timmyreilly.com pointing to Front Door Endpoint
@@ -330,35 +341,6 @@ resource "azurerm_dns_cname_record" "cname_record_moolah" {
 
 #   auto_renew = false
 #   tags       = {}
-# }
-
-
-# resource "azurerm_cdn_frontdoor_custom_domain" "www_custom_domain" {
-#   name                     = "www-timmyreilly-com"
-#   resource_group_name      = azurerm_resource_group.main.name
-#   profile_name             = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
-#   host_name                = "www.timmyreilly.com"
-#   dns_zone_id              = azurerm_dns_zone.dnszones_timmyreilly_com.id
-
-#   # Enable HTTPS with Azure-managed certificates
-#   tls {
-#     certificate_type    = "ManagedCertificate"
-#     minimum_tls_version = "TLS12"
-#   }
-# }
-
-# resource "azurerm_cdn_frontdoor_custom_domain" "root_custom_domain" {
-#   name                     = "timmyreilly-com"
-#   resource_group_name      = azurerm_resource_group.main.name
-#   profile_name             = azurerm_cdn_frontdoor_profile.prodFrontDoor.name
-#   host_name                = "timmyreilly.com"
-#   dns_zone_id              = azurerm_dns_zone.dnszones_timmyreilly_com.id
-
-#   # Enable HTTPS with Azure-managed certificates
-#   tls {
-#     certificate_type    = "ManagedCertificate"
-#     minimum_tls_version = "TLS12"
-#   }
 # }
 
 
@@ -471,28 +453,6 @@ resource "azurerm_dns_cname_record" "cname_record_moolah" {
 #   # enable_caching                = false
 # }
 
-
-# resource "azurerm_dns_txt_record" "txt_record_dnsauth" {
-#   name                = "_dnsauth"
-#   zone_name           = azurerm_dns_zone.dnszones_timmyreilly_com.name
-#   resource_group_name = azurerm_resource_group.main.name
-#   ttl                 = 3600
-
-#   record {
-#     value = "9069xkffqc04frt0lhc76c517p4lrlqn"
-#   }
-# }
-
-# resource "azurerm_dns_txt_record" "txt_record_dnsauth_moolah" {
-#   name                = "_dnsauth.moolah"
-#   zone_name           = azurerm_dns_zone.dnszones_timmyreilly_com.name
-#   resource_group_name = azurerm_resource_group.main.name
-#   ttl                 = 3600
-
-#   record {
-#     value = "8c4d3jptr1wv6vjgfb614j9sy0pyzbr6"
-#   }
-# }
 
 # # Optional: Include Autoscale Settings if you have an App Service Plan
 # # Note: Ensure that the App Service Plan resource exists
