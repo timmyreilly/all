@@ -1,47 +1,79 @@
-from fastapi import FastAPI, Request
+import logging
+from fastapi import FastAPI, Request, Depends, HTTPException, status
 from lagom import Container, context_dependency_definition
 from lagom.integrations.fast_api import FastApiIntegration
+from typing import Iterator, List
+from sqlalchemy import create_engine, Column, Integer, String, Boolean
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
+from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel
+from passlib.context import CryptContext
 
-from typing import Iterator
-import sqlite3
+logging.getLogger('passlib').setLevel(logging.ERROR)
 
-# 1. Define the database connection class
-class DBConnection:
-    def __init__(self, db_path: str):
-        self.db_path = db_path
-        self.connection = sqlite3.connect(self.db_path)
-        self.connection.row_factory = sqlite3.Row
+# 1. Password Hashing Setup
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-    def fetch_data_for_user(self, user_id: int):
-        cursor = self.connection.cursor()
-        cursor.execute("SELECT name FROM users WHERE id = ?", (user_id,))
-        result = cursor.fetchone()
-        if result:
-            return {"name": result["name"]}
-        else:
-            return {"name": "Unknown"}
+def get_password_hash(password):
+    return pwd_context.hash(password)
 
-    def close(self):
-        self.connection.close()
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
 
-# 2. Set up the container
+# 2. Set Up SQLAlchemy
+DATABASE_URL = "sqlite:///./test.db"
+engine = create_engine(
+    DATABASE_URL, connect_args={"check_same_thread": False}
+)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# 3. Define Models
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    is_active = Column(Boolean, default=True)
+
+class Message(Base):
+    __tablename__ = "messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    content = Column(String, index=True)
+
+# 4. Create Tables
+Base.metadata.create_all(bind=engine)
+
+# 5. Set Up Dependency Injection
 container = Container()
 
-# 3. Define a context manager dependency for DBConnection
 @context_dependency_definition(container)
-def db_connection_provider() -> Iterator[DBConnection]:
-    db_conn = DBConnection("test.db")
+def get_db_session() -> Iterator[Session]:
+    session = SessionLocal()
     try:
-        yield db_conn
+        yield session
     finally:
-        db_conn.close()
+        session.close()
 
-# 4. Set up FastApiIntegration with request_context_singletons
-deps = FastApiIntegration(container, request_context_singletons=[DBConnection])
+deps = FastApiIntegration(container, request_context_singletons=[Session])
 
-# 5. Initialize the FastAPI app
+# 6. Initialize the FastAPI App
 app = FastAPI()
+
+# 7. Define Pydantic Schemas
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    is_active: bool
+
+    class Config:
+        from_attributes = True
 
 class MessageSchema(BaseModel):
     content: str
@@ -51,19 +83,45 @@ class MessageResponse(BaseModel):
     content: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-# 6. Define an endpoint that uses the db dependency
-@app.get("/users/{user_id}")
-async def get_user(user_id: int, db: DBConnection = deps.depends(DBConnection)):
-    user = db.fetch_data_for_user(user_id)
-    return {"user": user}
+# 8. Define Endpoints
+@app.post("/users", response_model=UserResponse)
+def create_user(user: UserCreate, session: Session = deps.depends(Session)):
+    hashed_password = get_password_hash(user.password)
+    db_user = User(
+        username=user.username,
+        hashed_password=hashed_password
+    )
+    session.add(db_user)
+    try:
+        session.commit()
+        session.refresh(db_user)
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered"
+        )
+    return db_user
 
-# 7. Define another endpoint with access to the Request object
-@app.get("/info")
-async def get_info(request: Request, db: DBConnection = deps.depends(DBConnection)):
-    return {
-        "path": request.url.path,
-        "db_status": "connected" if db.connection else "disconnected"
-    }
+@app.get("/users/{user_id}", response_model=UserResponse)
+def get_user(user_id: int, session: Session = deps.depends(Session)):
+    user = session.query(User).filter(User.id == user_id).first()
+    if user:
+        return user
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
 
+@app.post("/messages", response_model=MessageResponse)
+def create_message(message: MessageSchema, session: Session = deps.depends(Session)):
+    db_message = Message(content=message.content)
+    session.add(db_message)
+    session.commit()
+    session.refresh(db_message)
+    return db_message
+
+@app.get("/messages", response_model=List[MessageResponse])
+def get_messages(session: Session = deps.depends(Session)):
+    messages = session.query(Message).all()
+    return messages
