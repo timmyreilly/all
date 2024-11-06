@@ -116,7 +116,7 @@
     - name: Initialize and apply Terraform configuration
       community.general.terraform:
         project_path: "{{ terraform_dir }}"
-        state: present
+        state: absent
         force_init: false
         init_reconfigure: false
         variables: "{{ terraform_vars }}"
