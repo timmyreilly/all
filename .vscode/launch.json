@@ -14,6 +14,23 @@
             //     "${command:pickArgs}"
             // ],
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Python: FastAPI (Uvicorn)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "lab.backend.chapp:app",
+                "--reload",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000"
+            ],
+            "jinja": true,
+            "env": {},
+            "console": "integratedTerminal"
         }
     ]
 }
