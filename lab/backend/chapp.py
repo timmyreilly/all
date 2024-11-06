@@ -11,7 +11,7 @@ from passlib.context import CryptContext
 
 logging.getLogger('passlib').setLevel(logging.ERROR)
 
-# 1. Password Hashing Setup
+# Password Hashing Setup
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_password_hash(password):
@@ -20,7 +20,7 @@ def get_password_hash(password):
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-# 2. Set Up SQLAlchemy
+# Set Up SQLAlchemy
 DATABASE_URL = "sqlite:///./test.db"
 engine = create_engine(
     DATABASE_URL, connect_args={"check_same_thread": False}
@@ -28,7 +28,7 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# 3. Define Models
+# Define Models
 class User(Base):
     __tablename__ = "users"
 
@@ -43,10 +43,10 @@ class Message(Base):
     id = Column(Integer, primary_key=True, index=True)
     content = Column(String, index=True)
 
-# 4. Create Tables
+# Create Tables
 Base.metadata.create_all(bind=engine)
 
-# 5. Set Up Dependency Injection
+# Set Up Dependency Injection
 container = Container()
 
 @context_dependency_definition(container)
@@ -85,7 +85,7 @@ class MessageResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# 8. Define Endpoints
+# Define Endpoints
 @app.post("/users", response_model=UserResponse)
 def create_user(user: UserCreate, session: Session = deps.depends(Session)):
     hashed_password = get_password_hash(user.password)
