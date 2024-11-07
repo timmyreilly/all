@@ -1,0 +1,160 @@
+---
+# Azure DevOps pipeline to deploy a VNet & an Ubuntu VM
+
+name: $(BuildDefinitionName).$(DayOfYear)$(Rev:.r)
+
+pr: none
+trigger: none
+
+parameters:
+  # Boolean values to determine if we want to deploy a network and/or VM
+  - name: DEPLOY_NETWORK
+    displayName: DEPLOY_NETWORK
+    type: boolean
+  - name: DEPLOY_VM
+    displayName: DEPLOY_VM
+    type: boolean
+  - name: REGION
+    displayName: REGION
+    type: string
+  - name: RESOURCE_GROUP_NAME
+    displayName: RESOURCE_GROUP_NAME
+    type: string
+  - name: VNET_NAME
+    displayName: VNET_NAME
+    type: string
+  - name: NETWORK_VNET_ADDRESS_SPACE
+    displayName: Network Vnet Address Space
+    type: string
+  - name: NETWORK_SUBNETS
+    displayName: Network Subnets
+    type: string
+  - name: MACHINE_NAME
+    displayName: Name of virtual machine to deploy
+    type: string
+    # TAGS
+  - name: MODULE_ID
+    displayName: Pass a module_id to manage an existing deployment 
+    type: string
+    default: ""
+  - name: TAG_ENVIRONMENT
+    displayName: Target Environment
+    type: string
+    # ANSIBLE PARAMS
+  - name: ANSIBLE_VERBOSITY_LEVEL
+    displayName: Ansible verbosity level
+    type: string
+    default: "-vv"
+    values:
+      - "-v"
+      - "-vv"
+      - "-vvv"
+
+variables:
+  - group: example-variable-group # defining pipeline variables
+  
+pool:
+  name: default
+
+jobs:
+  - job: DeployNetwork
+    displayName: Deploy network module
+    workspace:
+      clean: all
+    condition: ${{ parameters.DEPLOY_NETWORK }}
+
+    steps:
+      - checkout: self # Assumes pipeline is in same repo as source code, depends how you implement
+
+      - task: AzureKeyVault@1
+        displayName: Fetch secrets from Key Vault
+        inputs:
+          azureSubscription: $(AZURE-SUBSCRIPTION-ENDPOINT)
+          KeyVaultName: $(KEYVAULT-NAME)
+          SecretsFilter: '*'
+          RunAsPreJob: true
+
+      - script: |
+          az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET -t $ARM_TENANT_ID
+        displayName: "Azure CLI Login"
+        env:
+          ARM_CLIENT_ID: $(ARM-CLIENT-ID)
+          ARM_CLIENT_SECRET: $(ARM-CLIENT-SECRET)
+          ARM_TENANT_ID: $(ARM-TENANT-ID)
+
+      - script: >
+          ansible-playbook $(Agent.BuildDirectory)/src/deploy_vnet_vm_example/modules/network/deploy_and_configure_network.yml ${{ parameters.ANSIBLE_VERBOSITY_LEVEL }} 
+        displayName: "deploy and configure virutal network"
+        continueOnError: false
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: false
+          ANSIBLE_STDOUT_CALLBACK: debug
+          ARM_CLIENT_ID: $(ARM-CLIENT-ID)
+          ARM_CLIENT_SECRET: $(ARM-CLIENT-SECRET)
+          ARM_SUBSCRIPTION_ID: $(ARM-SUBSCRIPTION-ID)
+          ARM_TENANT_ID: $(ARM-TENANT-ID)
+          ARM_ACCESS_KEY: $(ARM-ACCESS-KEY)
+          LOCATION: ${{ parameters.REGION }}
+          MODULE_ID: ${{ parameters.MODULE_ID }}
+          RESOURCE_GROUP_NAME: ${{ parameters.RESOURCE_GROUP_NAME }}
+          STORAGE_ACCOUNT_NAME: $(STORAGE-ACCOUNT-NAME)
+          SUBNET_ADDRESS_SPACES: ${{ parameters.NETWORK_SUBNETS }}
+          TAG_ENVIRONMENT: ${{ parameters.TAG_ENVIRONMENT }}
+          VNET_NAME: ${{ parameters.VNET_NAME }}
+          VNET_ADDRESS_SPACE: ${{ parameters.NETWORK_VNET_ADDRESS_SPACE }}
+
+  - job: DeployVM
+    displayName: Deploy Ubuntu Virtual Machine
+    workspace:
+      clean: all
+    dependsOn:
+      - DeployNetwork
+    condition: and
+      (
+      ${{ parameters.DEPLOY_VM }},
+      in(dependencies.DeployNetwork.result, 'Succeeded', 'Skipped')
+      )
+
+    steps:
+      - checkout: self # Assumes pipeline is in same repo as source code, depends how you implement
+
+      - task: AzureKeyVault@1
+        displayName: Fetch secrets from Key Vault
+        inputs:
+          azureSubscription: $(AZURE-SUBSCRIPTION-ENDPOINT)
+          KeyVaultName: $(KEYVAULT-NAME)
+          SecretsFilter: '*'
+          RunAsPreJob: true
+
+      - script: |
+          az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET -t $ARM_TENANT_ID
+        displayName: "Azure CLI Login"
+        env:
+          ARM_CLIENT_ID: $(ARM-CLIENT-ID)
+          ARM_CLIENT_SECRET: $(ARM-CLIENT-SECRET)
+          ARM_TENANT_ID: $(ARM-TENANT-ID)
+
+      - script: >
+          ansible-playbook $(Agent.BuildDirectory)/infra/default/modeuls/hub_and_spoke.yml ${{ parameters.ANSIBLE_VERBOSITY_LEVEL }} 
+        displayName: "deploy and configure ubuntu VM"
+        continueOnError: false
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: false
+          ANSIBLE_STDOUT_CALLBACK: debug
+          ADMIN_USERNAME: $(ADMIN-USERNAME)
+          ADMIN_PASSWORD: $(ADMIN-PASSWORD)
+          ARM_CLIENT_ID: $(ARM-CLIENT-ID)
+          ARM_CLIENT_SECRET: $(ARM-CLIENT-SECRET)
+          ARM_SUBSCRIPTION_ID: $(ARM-SUBSCRIPTION-ID)
+          ARM_TENANT_ID: $(ARM-TENANT-ID)
+          ARM_ACCESS_KEY: $(ARM-ACCESS-KEY)
+          LOCATION: ${{ parameters.REGION }}
+          MACHINE_NAME: ${{ parameters.MACHINE_NAME }}
+          MODULE_ID: ${{ parameters.MODULE_ID }}
+          RESOURCE_GROUP_NAME: ${{ parameters.RESOURCE_GROUP_NAME }}
+          STORAGE_ACCOUNT_NAME: $(STORAGE-ACCOUNT-NAME)
+          SUBNET_ADDRESS_SPACES: ${{ parameters.NETWORK_SUBNETS }}
+          SUBNET_NAME: ${{ parameters.SUBNET_NAME }}
+          TAG_ENVIRONMENT: ${{ parameters.TAG_ENVIRONMENT }}
+          VNET_NAME: ${{ parameters.VNET_NAME }}
+          VNET_ADDRESS_SPACE: ${{ parameters.NETWORK_VNET_ADDRESS_SPACE }}
