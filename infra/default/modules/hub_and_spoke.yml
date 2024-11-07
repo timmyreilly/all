@@ -1,53 +1,5 @@
-# #  Create the Front Door Service for timmyreilly.com
-# ---
-# - name: build timmyreilly.com Front Door Service
-#   any_errors_fatal: true
-#   hosts:
-#     - localhost
-#   gather_facts: true
-
-#   pre_tasks: 
-#     - name: generate new module ID if not defined 
-#       set_fact: 
-#         module_state_id: "{{ 999 | random }}"
-#       when: module_id == "" 
-
-#   vars: 
-#    - storage_access_key: "{{ lookup('env', 'ARM_ACCESS_KEY') | mandatory }}"
-#    - storage_account_name: "{{ lookup('env', 'STORAGE_ACCOUNT_NAME') | mandatory }}"   
-#    - front_door_vars:
-#             resource_group_name: "{{ resource_group_name | mandatory }}"
-#             front_door_name: "{{ front_door_name | mandatory }}"
-#             front_door_backend_pool_name: "{{ front_door_backend_pool_name | mandatory }}"
-#             front_door_frontend_endpoint_name: "{{ front_door_frontend_endpoint_name | mandatory }}"
-#             front_door_routing_rule_name: "{{ front_door_routing_rule_name | mandatory }}"
-#             front_door_health_probe_name: "{{ front_door_health_probe_name | mandatory }}"
-            
-#   tasks:
-#     - name: set terraform directory
-#       set_fact:
-#         terraform_dir: "../terraform/front_door_and_dns/"
-
-#     - name: apply tf infrastructure
-#       terraform:
-#         project_path: "{{ terraform_dir }}"
-#         state: present
-#         force_init: true
-#         overwrite_init: true
-#         init_reconfigure: true
-#         variables: "{{ front_door_vars }}"
-#         backend_config: 
-#           key: "{{ front_door_vars.tag_module_type + front_door_vars.tag_module_id + '.tfstate' }}" 
-#           container_name: state 
-#           storage_account_name: "{{ storage_account_name }}"
-#           access_key: "{{ storage_access_key }}"
-#       register: network_resources
-
-
-
-# Create the infrastructure for timmyreilly.com
 ---
-- name: Build infrastructure for timmyreilly.com
+- name: Build Hub and Spoke infrastructure 
   hosts: localhost
   any_errors_fatal: true
   gather_facts: false
@@ -74,45 +26,6 @@
       tag_module_id: "{{ module_state_id | default(module_id) }}"
       tag_module_type: hubspo
 
-
-      # SecureString Parameters (Sensitive Data)
-      # domains_timmyreilly_com_email: "{{ domains_timmyreilly_com_email | mandatory }}"
-      # domains_timmyreilly_com_nameFirst: "{{ domains_timmyreilly_com_nameFirst | mandatory }}"
-      # domains_timmyreilly_com_nameLast: "{{ domains_timmyreilly_com_nameLast | mandatory }}"
-      # domains_timmyreilly_com_phone: "{{ domains_timmyreilly_com_phone | mandatory }}"
-
-      # domains_timmyreilly_com_email_1: "{{ domains_timmyreilly_com_email_1 | mandatory }}"
-      # domains_timmyreilly_com_nameFirst_1: "{{ domains_timmyreilly_com_nameFirst_1 | mandatory }}"
-      # domains_timmyreilly_com_nameLast_1: "{{ domains_timmyreilly_com_nameLast_1 | mandatory }}"
-      # domains_timmyreilly_com_phone_1: "{{ domains_timmyreilly_com_phone_1 | mandatory }}"
-
-      # domains_timmyreilly_com_email_2: "{{ domains_timmyreilly_com_email_2 | mandatory }}"
-      # domains_timmyreilly_com_nameFirst_2: "{{ domains_timmyreilly_com_nameFirst_2 | mandatory }}"
-      # domains_timmyreilly_com_nameLast_2: "{{ domains_timmyreilly_com_nameLast_2 | mandatory }}"
-      # domains_timmyreilly_com_phone_2: "{{ domains_timmyreilly_com_phone_2 | mandatory }}"
-
-      # domains_timmyreilly_com_email_3: "{{ domains_timmyreilly_com_email_3 | mandatory }}"
-      # domains_timmyreilly_com_nameFirst_3: "{{ domains_timmyreilly_com_nameFirst_3 | mandatory }}"
-      # domains_timmyreilly_com_nameLast_3: "{{ domains_timmyreilly_com_nameLast_3 | mandatory }}"
-      # domains_timmyreilly_com_phone_3: "{{ domains_timmyreilly_com_phone_3 | mandatory }}"
-
-      # # Backup Parameters
-      # backups: "{{ backups | default([]) }}"
-
-      # # String Parameters with Defaults
-      # sites_timmyreilly_name: "{{ sites_timmyreilly_name | default('timmyreilly') }}"
-      # sites_FinalProtocol_name: "{{ sites_FinalProtocol_name | default('FinalProtocol') }}"
-      # serverfarms_Default1_name: "{{ serverfarms_Default1_name | default('Default1') }}"
-      # components_timmyreilly_name: "{{ components_timmyreilly_name | default('timmyreilly') }}"
-      # dnszones_timmyreilly_com_name: "{{ dnszones_timmyreilly_com_name | default('timmyreilly.com') }}"
-      # domains_timmyreilly_com_name: "{{ domains_timmyreilly_com_name | default('timmyreilly.com') }}"
-      # autoscalesettings_Default1_Default_Web_WestUS_name: "{{ autoscalesettings_Default1_Default_Web_WestUS_name | default('Default1-Default-Web-WestUS') }}"
-
-      # profiles_prodFrontDoor_externalid: "{{ profiles_prodFrontDoor_externalid | mandatory }}"
-      # profiles_prodFrontDoor_name: "{{ profiles_prodFrontDoor_name | default('prodFrontDoor') }}"
-      # dnszones_timmyreilly_com_externalid: "{{ dnszones_timmyreilly_com_externalid | mandatory }}"
-      # frontdoorwebapplicationfirewallpolicies_webFirewallProdOne_externalid: "{{ frontdoorwebapplicationfirewallpolicies_webFirewallProdOne_externalid | mandatory }}"
-
   tasks:
     - name: Set Terraform directory
       set_fact:
@@ -121,7 +34,7 @@
     - name: Initialize and apply Terraform configuration
       community.general.terraform:
         project_path: "{{ terraform_dir }}"
-        state: present
+        state: absent
         force_init: false
         init_reconfigure: false
         variables: "{{ terraform_vars }}"
