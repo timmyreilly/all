@@ -34,7 +34,7 @@
     - name: Initialize and apply Terraform configuration
       community.general.terraform:
         project_path: "{{ terraform_dir }}"
-        state: absent
+        state: present
         force_init: false
         init_reconfigure: false
         variables: "{{ terraform_vars }}"
@@ -48,3 +48,43 @@
     - name: Output Terraform results
       debug:
         var: tf_output
+
+    - name: Extract Web App details from Terraform output
+      set_fact:
+        web_app_name: "{{ tf_output.outputs.web_app_name.value }}"
+        web_app_resource_group_name: "{{ tf_output.outputs.resource_group_name.value }}"
+
+    - name: Package Flask app code
+      archive:
+        path: "../../../lab/backend/"
+        dest: "/tmp/web_app.zip"
+        format: zip
+
+
+    - name: Set Python version and startup command in Web App
+      shell: |
+        az webapp config set --resource-group "{{ web_app_resource_group_name }}" --name "{{ web_app_name }}" --linux-fx-version "PYTHON|3.12"
+        az webapp config appsettings set --resource-group "{{ web_app_resource_group_name }}" --name "{{ web_app_name }}" --settings "STARTUP_COMMAND=uvicorn chapp:app --host 0.0.0.0 --port 8080"
+      environment:
+        AZURE_CLIENT_ID: "{{ lookup('env', 'AZURE_CLIENT_ID') }}"
+        AZURE_SECRET: "{{ lookup('env', 'AZURE_SECRET') }}"
+        AZURE_TENANT: "{{ lookup('env', 'AZURE_TENANT') }}"
+        AZURE_SUBSCRIPTION_ID: "{{ terraform_vars.subscription_id }}"
+      args:
+        executable: /bin/bash
+
+    - name: Deploy FastAPI app to Azure Web App
+      shell: |
+        az webapp deploy --resource-group "{{ web_app_resource_group_name }}" --name "{{ web_app_name }}" --src-path "/tmp/web_app.zip" --type zip
+      environment:
+        AZURE_CLIENT_ID: "{{ lookup('env', 'AZURE_CLIENT_ID') }}"
+        AZURE_SECRET: "{{ lookup('env', 'AZURE_SECRET') }}"
+        AZURE_TENANT: "{{ lookup('env', 'AZURE_TENANT') }}"
+        AZURE_SUBSCRIPTION_ID: "{{ terraform_vars.subscription_id }}"
+      args:
+        executable: /bin/bash
+      register: deploy_output
+
+    - name: Output deployment result
+      debug:
+        var: deploy_output.stdout

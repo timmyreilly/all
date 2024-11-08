@@ -17,3 +17,8 @@ output "virtual_machine_id" {
   description = "The ID of the Virtual Machine."
   value       = azurerm_windows_virtual_machine.jumpbox_vm.id
 }
+
+output "web_app_name" {
+  description = "The name of the Web App."
+  value       = azurerm_linux_web_app.web_app.name
+}
