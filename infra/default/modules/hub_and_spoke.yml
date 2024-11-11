@@ -26,6 +26,12 @@
       tag_module_id: "{{ module_state_id | default(module_id) }}"
       tag_module_type: hubspo
 
+    azure_vars: 
+      location: "{{ location_west_us | default('West US') }}"
+      linux_fx_version: "PYTHON|3.12"
+        # startup_command: "uvicorn chapp:app --host 0.0.0.0 --port 8080"
+
+
   tasks:
     - name: Set Terraform directory
       set_fact:
@@ -34,6 +40,25 @@
     - name: Initialize and apply Terraform configuration
       community.general.terraform:
         project_path: "{{ terraform_dir }}"
+        state: absent
+        force_init: false
+        init_reconfigure: false
+        variables: "{{ terraform_vars }}"
+        backend_config:
+          key: "{{ terraform_vars.tag_module_type + terraform_vars.tag_module_id + '.tfstate' }}"
+          container_name: "state"
+          storage_account_name: "{{ storage_account_name }}"
+          access_key: "{{ storage_access_key }}"
+      register: tf_output
+
+    - name: Output Terraform results
+      debug:
+        var: tf_output
+
+
+    - name: Initialize and apply Terraform configuration
+      community.general.terraform:
+        project_path: "../../terraform/default/firewall_and_route_tables" # "{{ terraform_dir }}"
         state: present
         force_init: false
         init_reconfigure: false
@@ -53,19 +78,25 @@
       set_fact:
         web_app_name: "{{ tf_output.outputs.web_app_name.value }}"
         web_app_resource_group_name: "{{ tf_output.outputs.resource_group_name.value }}"
+        app_service_plan: "{{ tf_output.outputs.app_service_plan_name.value }}"
 
-    - name: Package Flask app code
+    - name: Package FastAPI app code
       archive:
         path: "../../../lab/backend/"
+        dest: "/tmp/fast_api_web_app.zip"
+        format: zip
+
+    - name: Package Original Lab Code 
+      archive:
+        path: "../../../lab/smoke_test/backend/"
         dest: "/tmp/web_app.zip"
         format: zip
 
-
     - name: Set Python version and startup command in Web App
       shell: |
-        az webapp config set --resource-group "{{ web_app_resource_group_name }}" --name "{{ web_app_name }}" --linux-fx-version "PYTHON|3.12"
-        az webapp config appsettings set --resource-group "{{ web_app_resource_group_name }}" --name "{{ web_app_name }}" --settings "STARTUP_COMMAND=uvicorn chapp:app --host 0.0.0.0 --port 8080"
+        az webapp config set --resource-group "{{ web_app_resource_group_name }}" --name "{{ web_app_name }}" --linux-fx-version "PYTHON|3.9"
       environment:
+        # az webapp config appsettings set --resource-group "{{ web_app_resource_group_name }}" --name "{{ web_app_name }}" --settings "STARTUP_COMMAND=uvicorn chapp:app --host 0.0.0.0 --port 8080"
         AZURE_CLIENT_ID: "{{ lookup('env', 'AZURE_CLIENT_ID') }}"
         AZURE_SECRET: "{{ lookup('env', 'AZURE_SECRET') }}"
         AZURE_TENANT: "{{ lookup('env', 'AZURE_TENANT') }}"
@@ -73,7 +104,31 @@
       args:
         executable: /bin/bash
 
-    - name: Deploy FastAPI app to Azure Web App
+    # - name: Ensure Web App exists
+    #   azure.azcollection.azure_rm_webapp:
+    #     resource_group: "{{ resource_group }}"
+    #     name: "{{ web_app_name }}"
+    #     plan: "{{ app_service_plan }}"
+    #     location: "{{ azure_vars.location }}"
+    #     state: present
+    #     client_id: "{{ lookup('env', 'AZURE_CLIENT_ID') }}"
+    #     secret: "{{ lookup('env', 'AZURE_SECRET') }}"
+    #     tenant: "{{ lookup('env', 'AZURE_TENANT') }}"
+    #     subscription_id: "{{ terraform_vars.subscription_id }}"
+
+    # - name: Set Web App configuration
+    #   azure.azcollection.azure_rm_webappconfiguration:
+    #     resource_group: "{{ resource_group }}"
+    #     name: "{{ web_app_name }}"
+    #     linux_fx_version: "{{ azure_vars.linux_fx_version }}"
+    #     app_settings:
+    #       STARTUP_COMMAND: ""
+    #     client_id: "{{ lookup('env', 'AZURE_CLIENT_ID') }}"
+    #     secret: "{{ lookup('env', 'AZURE_SECRET') }}"
+    #     tenant: "{{ lookup('env', 'AZURE_TENANT') }}"
+    #     subscription_id: "{{ terraform_vars.subscription_id }}"
+
+    - name: Deploy /tmp/web_app.zip to Azure Web App
       shell: |
         az webapp deploy --resource-group "{{ web_app_resource_group_name }}" --name "{{ web_app_name }}" --src-path "/tmp/web_app.zip" --type zip
       environment:
