@@ -129,17 +129,21 @@ resource "azurerm_service_plan" "app_plan" {
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   os_type             = "Linux"
-  sku_name            = "P1v2"
+  sku_name            = "B1"
 }
 
 # Create Web App
 resource "azurerm_linux_web_app" "web_app" {
-  name                = "webapp-${var.unique}"
+  name                = "webbapp-${var.unique}"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   service_plan_id     = azurerm_service_plan.app_plan.id
 
-  site_config {}
+  site_config {
+  }
+  app_settings = {
+    SCM_DO_BUILD_DURING_DEPLOYMENT = "true"
+  }
 }
 
 # Create Subnet for Private Endpoint
