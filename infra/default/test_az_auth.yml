@@ -1,0 +1,88 @@
+---
+- name: Azure Authorization Playbook
+  hosts: localhost
+  tasks:
+    - name: Login to Azure using Service Principal
+      # Service Principal is used for non-interactive login where a client ID and secret are provided.
+      # It requires the following variables:
+      #   - azure_client_id: Client ID of the service principal.
+      #   - azure_client_secret: Secret associated with the service principal.
+      #   - azure_subscription_id: Azure subscription ID to authenticate against.
+      #   - azure_tenant_id: Tenant ID for the Azure Active Directory.
+      azure.azcollection.azure_rm_resourcegroup:
+        name: "example-rg"
+        location: "eastus"
+      vars:
+        ansible_user: "{{ azure_client_id }}"
+        ansible_password: "{{ azure_client_secret }}"
+        ansible_subscription_id: "{{ azure_subscription_id }}"
+        ansible_tenant: "{{ azure_tenant_id }}"
+      tags:
+        - service_principal
+
+    - name: Login to Azure using Managed Identity
+      # Managed Identity allows Azure resources to authenticate to services without managing credentials.
+      # Typically used for resources like Virtual Machines that have been assigned a managed identity.
+      # Requires the Azure subscription ID.
+      azure.azcollection.azure_rm_virtualnetwork:
+        resource_group: "example-rg"
+        name: "example-vnet"
+        address_prefixes: "10.0.0.0/16"
+      vars:
+        ansible_subscription_id: "{{ azure_subscription_id }}"
+      tags:
+        - managed_identity
+
+    - name: Login to Azure using Azure CLI authentication
+      # This method uses the Azure CLI for authentication.
+      # The user must be logged in to Azure CLI (`az login`) on the machine where the playbook is executed.
+      azure.azcollection.azure_rm_virtualmachine:
+        resource_group: "example-rg"
+        name: "example-vm"
+        vm_size: "Standard_DS1_v2"
+        admin_username: "azureuser"
+        image:
+          offer: "UbuntuServer"
+          publisher: "Canonical"
+          sku: "18.04-LTS"
+          version: "latest"
+      tags:
+        - azure_cli_auth
+
+    - name: Login to Azure using Interactive Browser Authentication
+      # Interactive Browser Authentication requires user interaction.
+      # The user will be prompted to open a browser and log in.
+      # Useful for scenarios where Service Principal or CLI authentication is not available.
+      azure.azcollection.azure_rm_storageaccount:
+        resource_group: "example-rg"
+        name: "examplestorageacct"
+        account_type: "Standard_LRS"
+      vars:
+        ansible_subscription_id: "{{ azure_subscription_id }}"
+      tags:
+        - browser_auth
+
+    - name: Login to Azure using Shared Key
+      # Shared Key is used for authenticating directly to a storage account using its account name and key.
+      # Requires the following variables:
+      #   - storage_account_name: Name of the storage account.
+      #   - storage_account_key: Key associated with the storage account.
+      azure.azcollection.azure_rm_storageaccount:
+        resource_group: "example-rg"
+        name: "examplestorageacct"
+        account_type: "Standard_LRS"
+      vars:
+        ansible_user: "{{ storage_account_name }}"
+        ansible_password: "{{ storage_account_key }}"
+      tags:
+        - shared_key
+
+    - name: Display available authentication mechanisms
+      debug:
+        msg: |
+          Authorization mechanisms covered:
+            - Service Principal (Client ID/Secret)
+            - Managed Identity
+            - Azure CLI Authentication
+            - Interactive Browser Authentication
+            - Shared Key
