@@ -7,8 +7,8 @@ from typing import List
 import os
 from sqlalchemy.orm import Session
 
-from app.dependencies import container, get_db_session
-from app.models import Base, engine, User, Message
+from app.dependencies import container, get_db_session, engine
+from app.models import Base, User, Message
 from app.schemas import (
     UserCreate, UserResponse,
     MessageSchema, MessageResponse
