@@ -13,6 +13,7 @@ from app.schemas import (
     UserCreate, UserResponse,
     MessageSchema, MessageResponse
 )
+from fastapi import APIRouter
 
 # Create Tables
 Base.metadata.create_all(bind=engine)
@@ -31,20 +32,22 @@ deps = FastApiIntegration(container, request_context_singletons=[Session])
 
 app = FastAPI()
 
-# Serve the React App
-from fastapi.staticfiles import StaticFiles
+# CORS middleware, etc.
+from fastapi.middleware.cors import CORSMiddleware
 
-build_dir = os.path.join(os.path.dirname(__file__), '../frontend/build')
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React dev server origin
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-if os.path.isdir(build_dir):
-    app.mount("/", StaticFiles(directory=build_dir, html=True), name="react_app")
-else:
-    @app.get("/")
-    def read_root():
-        return {"message": "React app not found. Please build the frontend."}
+# Define API routes using APIRouter
+api_router = APIRouter()
 
 # User Endpoints
-@app.post("/api/users", response_model=UserResponse)
+@api_router.post("/users", response_model=UserResponse)
 def create_user(user: UserCreate, session: Session = deps.depends(Session)):
     hashed_password = get_password_hash(user.password)
     db_user = User(
@@ -63,7 +66,7 @@ def create_user(user: UserCreate, session: Session = deps.depends(Session)):
         )
     return db_user
 
-@app.get("/api/users/{user_id}", response_model=UserResponse)
+@api_router.get("/users/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, session: Session = deps.depends(Session)):
     user = session.query(User).filter(User.id == user_id).first()
     if user:
@@ -72,7 +75,7 @@ def get_user(user_id: int, session: Session = deps.depends(Session)):
         raise HTTPException(status_code=404, detail="User not found")
 
 # Message Endpoints
-@app.post("/api/messages", response_model=MessageResponse)
+@api_router.post("/messages", response_model=MessageResponse)
 def create_message(message: MessageSchema, session: Session = deps.depends(Session)):
     db_message = Message(content=message.content)
     session.add(db_message)
@@ -80,7 +83,34 @@ def create_message(message: MessageSchema, session: Session = deps.depends(Sessi
     session.refresh(db_message)
     return db_message
 
-@app.get("/api/messages", response_model=List[MessageResponse])
+@api_router.get("/messages", response_model=List[MessageResponse])
 def get_messages(session: Session = deps.depends(Session)):
     messages = session.query(Message).all()
     return messages
+
+# Include the API router with a prefix
+app.include_router(api_router, prefix="/api")
+
+# Serve the React app
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+build_dir = os.path.join(os.path.dirname(__file__), '../frontend/build')
+
+if os.path.isdir(build_dir):
+    # Serve static files from the build directory
+    app.mount("/static", StaticFiles(directory=os.path.join(build_dir, "static")), name="static")
+
+    # Catch-all route to serve index.html
+    @app.get("/{full_path:path}")
+    async def serve_react_app(full_path: str):
+        index_path = os.path.join(build_dir, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+        else:
+            raise HTTPException(status_code=404, detail="React app not found")
+else:
+    @app.get("/")
+    def read_root():
+        return {"message": "React app not found. Please build the frontend."}
