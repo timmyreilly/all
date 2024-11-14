@@ -37,7 +37,7 @@
       set_fact:
         terraform_dir: "../../terraform/default/hub_and_spoke/"
 
-    - name: Initialize and apply Terraform configuration
+    - name: Initialize and apply Terraform just vnet and bastion configuration
       community.general.terraform:
         project_path: "{{ terraform_dir }}"
         state: absent
@@ -56,7 +56,7 @@
         var: tf_output
 
 
-    - name: Initialize and apply Terraform configuration
+    - name: Initialize and apply firewall terraform configuration
       community.general.terraform:
         project_path: "../../terraform/default/firewall_and_route_tables" # "{{ terraform_dir }}"
         state: absent
@@ -95,12 +95,12 @@
     - name: Set Python version and startup command in Web App
       shell: |
         az webapp config set --resource-group "{{ web_app_resource_group_name }}" --name "{{ web_app_name }}" --linux-fx-version "PYTHON|3.9"
-      environment:
-        # az webapp config appsettings set --resource-group "{{ web_app_resource_group_name }}" --name "{{ web_app_name }}" --settings "STARTUP_COMMAND=uvicorn chapp:app --host 0.0.0.0 --port 8080"
-        AZURE_CLIENT_ID: "{{ lookup('env', 'AZURE_CLIENT_ID') }}"
-        AZURE_SECRET: "{{ lookup('env', 'AZURE_SECRET') }}"
-        AZURE_TENANT: "{{ lookup('env', 'AZURE_TENANT') }}"
-        AZURE_SUBSCRIPTION_ID: "{{ terraform_vars.subscription_id }}"
+      # environment:
+      #   # az webapp config appsettings set --resource-group "{{ web_app_resource_group_name }}" --name "{{ web_app_name }}" --settings "STARTUP_COMMAND=uvicorn chapp:app --host 0.0.0.0 --port 8080"
+      #   AZURE_CLIENT_ID: "{{ lookup('env', 'AZURE_CLIENT_ID') }}"
+      #   AZURE_SECRET: "{{ lookup('env', 'AZURE_SECRET') }}"
+      #   AZURE_TENANT: "{{ lookup('env', 'AZURE_TENANT') }}"
+      #   AZURE_SUBSCRIPTION_ID: "{{ terraform_vars.subscription_id }}"
       args:
         executable: /bin/bash
 
