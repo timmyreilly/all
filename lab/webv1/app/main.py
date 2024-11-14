@@ -1,19 +1,16 @@
 import logging
-from fastapi import FastAPI, Depends, HTTPException, status
-from lagom.integrations.fast_api import FastApiIntegration
-from sqlalchemy.exc import IntegrityError
-from passlib.context import CryptContext
-from typing import List
 import os
-from sqlalchemy.orm import Session
+from typing import List
 
-from app.dependencies import container, get_db_session, engine
-from app.models import Base, User, Message
-from app.schemas import (
-    UserCreate, UserResponse,
-    MessageSchema, MessageResponse
-)
-from fastapi import APIRouter
+from app.dependencies import container, engine, get_db_session
+from app.models import Base, Message, User
+from app.schemas import (MessageResponse, MessageSchema, UserCreate,
+                         UserResponse)
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
+from lagom.integrations.fast_api import FastApiIntegration
+from passlib.context import CryptContext
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 # Create Tables
 Base.metadata.create_all(bind=engine)
@@ -91,10 +88,9 @@ def get_messages(session: Session = deps.depends(Session)):
 # Include the API router with a prefix
 app.include_router(api_router, prefix="/api")
 
+from fastapi.responses import FileResponse
 # Serve the React app
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
 build_dir = os.path.join(os.path.dirname(__file__), '../frontend/build')
 
