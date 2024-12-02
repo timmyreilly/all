@@ -1,0 +1,102 @@
+- name: Manage Azure resources
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    dev_core_storage_account: "<your-storage-account-name>"
+    dev_core_rg: "<your-resource-group-name>"
+
+    terraform_vars:
+      subscription_id: "{{ subscription_id | mandatory }}"
+      location: "{{ location_west_us | default('West US') }}"
+      admin_username: "{{ lookup('env', 'ADMIN_USER') | mandatory }}"
+      admin_password: "{{ lookup('env', 'ADMIN_PASSWORD') | mandatory }}"
+      tag_module_id: "{{ module_state_id | default(module_id) }}"
+      tag_module_type: hubspo
+      unique: "{{ unique }}"
+
+  tasks:
+    - name: List all resource groups
+      azure_rm_resourcegroup_info:
+        auth_source: "auto"  # Automatically use `az login` credentials
+      register: resource_groups
+
+    # - debug:
+    #     var: resource_groups
+    - name: Fetch access key using Azure CLI
+      command: >
+        az storage account keys list
+        --account-name {{ dev_core_storage_account }}
+        --query [0].value
+        -o tsv
+      register: access_key_output
+
+    - name: Set access key to variable
+      set_fact:
+        access_key: "{{ access_key_output.stdout }}"
+
+    # - name: Debug access key
+    #   debug:
+    #     msg: "The access key is: {{ access_key }}"
+
+
+    - name: Fetch subscription ID using Azure CLI
+      command: >
+        az account show --query id -o tsv
+      register: subscription_id_output
+
+    - name: Set subscription ID as a variable
+      set_fact:
+        subscription_id: "{{ subscription_id_output.stdout }}"
+
+    # - name: Export subscription ID as an environment variable
+    #   environment:
+    #     AZURE_SUBSCRIPTION_ID: "{{ subscription_id_output.stdout }}"
+
+    - name: Set subscription_id in terraform_vars
+      set_fact:
+        terraform_vars: >-
+          {{
+            terraform_vars | combine({
+              'subscription_id': subscription_id_output.stdout
+            })
+          }}
+
+    - name: Initialize and apply Terraform just vnet and bastion configuration
+      community.general.terraform:
+        project_path: "../../terraform/default/hub_and_spoke/"
+        state: present
+        force_init: true
+        init_reconfigure: true
+        variables: "{{ terraform_vars }}"
+        backend_config:
+          key: "{{ terraform_vars.tag_module_type + terraform_vars.tag_module_id + '.tfstate' }}"
+          container_name: "state"
+          storage_account_name: "{{ dev_core_storage_account }}"
+          access_key: "{{ access_key }}"
+      register: tf_output
+      environment:
+        ARM_SUBSCRIPTION_ID: "{{ subscription_id_output.stdout }}"
+
+    - name: Output Terraform results
+      debug:
+        var: tf_output
+
+
+    - name: GPT Spoke
+      community.general.terraform:
+        project_path: "../../terraform/default/gpt_spoke/"
+        state: present
+        force_init: true
+        init_reconfigure: false
+        variables: "{{ terraform_vars }}"
+        backend_config:
+          key: "{{ terraform_vars.tag_module_type + terraform_vars.tag_module_id + '.tfstate' }}"
+          container_name: "state"
+          storage_account_name: "{{ dev_core_storage_account }}"
+          access_key: "{{ access_key }}"
+      register: gpt_tf_output
+
+    - name: Output Terraform results
+      debug:
+        var: gpt_tf_output

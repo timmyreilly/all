@@ -1,4 +1,6 @@
 resource_group_name: tim-r-dv
+dev_core_rg: tsocamanoy-dev
+dev_core_storage_account: corestoragetisocamanoy
 vnet_name: vnet-d
 subnet_address_spaces: 
   - "10.191.1.0/24"
@@ -7,3 +9,4 @@ location: westus
 module_id: ""
 vnet_address_space:
   - "10.191.0.0/16"
+content_safety_location: eastus

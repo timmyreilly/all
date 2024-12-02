@@ -2,6 +2,23 @@
 - name: Azure Authorization Playbook
   hosts: localhost
   tasks:
+
+    - name: Fetch connection string using Azure CLI
+      command: >
+        az storage account show-connection-string
+        --name {{ dev_core_storage_account }}
+        --query connectionString
+        -o tsv
+      register: connection_string_output
+
+    - name: Set connection string to variable
+      set_fact:
+        connection_string: "{{ connection_string_output.stdout }}"
+
+    - name: Debug connection string
+      debug:
+        msg: "The connection string is: {{ connection_string }}"
+
     - name: Login to Azure using Service Principal
       # Service Principal is used for non-interactive login where a client ID and secret are provided.
       # It requires the following variables:

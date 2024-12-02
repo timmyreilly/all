@@ -1,0 +1,107 @@
+- name: Deploy Landing Page to Blob Storage
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    ultimate_dev_core_storage_account: "<your-storage-account-name>"
+    ultimate_dev_core_rg: "<your-resource-group-name>"
+
+    terraform_vars:
+      subscription_id: "{{ subscription_id | mandatory }}"
+      location: "{{ location_west_us | default('West US') }}"
+      unique: "{{ unique }}"
+
+  tasks:
+    - name: List all resource groups
+      azure_rm_resourcegroup_info:
+        auth_source: "auto"  # Automatically use `az login` credentials
+      register: resource_groups
+
+    # - debug:
+    #     var: resource_groups
+    - name: Fetch access key using Azure CLI
+      command: >
+        az storage account keys list
+        --account-name {{ ultimate_dev_core_storage_account }}
+        --query [0].value
+        -o tsv
+      register: access_key_output
+
+    - name: Set access key to variable
+      set_fact:
+        access_key: "{{ access_key_output.stdout }}"
+
+    # - name: Debug access key
+    #   debug:
+    #     msg: "The access key is: {{ access_key }}"
+
+
+    - name: Fetch subscription ID using Azure CLI
+      command: >
+        az account show --query id -o tsv
+      register: subscription_id_output
+
+
+        
+
+    - name: Set subscription ID as a variable
+      set_fact:
+        subscription_id: "{{ subscription_id_output.stdout }}"
+
+    - name: set right now
+      set_fact:
+        right_now_ish: "{{ lookup('pipe', 'date +%Y-%m-%d.%H:%M:%S') }}"
+    
+    # - name: Set Right Now
+    #   set_fact:
+    #     right_now_ish: "{{ ansible_date_time.date }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
+    - name: Create a temporary directory
+      tempfile:
+        state: directory
+        suffix: blob-temp-dir
+      register: temp_dir
+
+    - name: Download file from Azure Blob Storage to a temp directory with a timestamped filename
+      azure_rm_storageblob:
+        resource_group: "{{ ultimate_dev_core_rg }}"
+        storage_account: "{{ ultimate_dev_core_storage_account }}"
+        container: "$web"
+        blob: "home_page_main.html"
+        dest: "{{ temp_dir.path }}/home_page_main_{{ right_now_ish }}.html"
+        state: present
+      register: blob_download
+  
+    - name: Upload current home_page_main to archive container
+      azure_rm_storageblob:
+        resource_group: "{{ ultimate_dev_core_rg }}"
+        storage_account: "{{ ultimate_dev_core_storage_account }}"
+        container: "webarchive"
+        blob: "home_page_main_{{ right_now_ish }}.html"
+        src: "{{ temp_dir.path }}/home_page_main_{{ right_now_ish }}.html"
+        state: present
+        content_type: "text/html"
+
+
+    - name: overwrite files to in storage
+      azure_rm_storageblob:
+        resource_group: "{{ ultimate_dev_core_rg }}"
+        storage_account: "{{ ultimate_dev_core_storage_account }}"
+        container: "$web"
+        src: "../../../landing/v1/home_page_main.html"
+        blob: "home_page_main.html"
+        state: present
+        public_access: container
+        force: true
+        content_type: "text/html"
+
+        
+        
+    
+    # - name: upload files to blob storage
+    #   azure_rm_storageblob:
+    #     resource_group: "{{ ultimate_dev_core_rg }}"
+    #     storage_account: "{{ ultimate
+
+    - name: ls CLI
+      command: |
+        ls {{ temp_dir.path }}

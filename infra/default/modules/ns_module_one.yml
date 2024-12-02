@@ -1,0 +1,57 @@
+#  Create the Front Door Service for timmyreilly.com
+---
+- name: Build Hub and Spoke infrastructure 
+  hosts: localhost
+  any_errors_fatal: true
+  gather_facts: false
+
+  pre_tasks: 
+    - name: generate new module ID if not defined 
+      set_fact: 
+        module_state_id: "{{ 999 | random }}"
+      when: module_id == "" 
+
+  vars:
+    # Environment Variables for Terraform Backend (Storage Account)
+    storage_access_key: "{{ lookup('env', 'ARM_ACCESS_KEY') | mandatory }}"
+    storage_account_name: "{{ lookup('env', 'STORAGE_ACCOUNT_NAME') | mandatory }}"
+
+    # Terraform Variables
+    terraform_vars:
+      subscription_id: "{{ subscription_id | mandatory }}"
+      # resource_group_name: "{{ resource_group_name | mandatory }}"
+      # location_east_us: "{{ location_east_us | default('East US') }}"
+      location: "{{ location_west_us | default('West US') }}"
+      admin_username: "{{ lookup('env', 'ADMIN_USER') | mandatory }}"
+      admin_password: "{{ lookup('env', 'ADMIN_PASSWORD') | mandatory }}"
+      tag_module_id: "{{ module_state_id | default(module_id) }}"
+      tag_module_type: huspo
+      unique: "{{ unique | mandatory }}"
+
+    azure_vars: 
+      location: "{{ location_west_us | default('West US') }}"
+      linux_fx_version: "PYTHON|3.12"
+
+
+  tasks:
+    - name: Set Terraform directory
+      set_fact:
+        terraform_dir: "../../terraform/default/hub_and_spoke_simple/"
+
+    - name: Initialize and apply Terraform just vnet and peerings
+      community.general.terraform:
+        project_path: "{{ terraform_dir }}"
+        state: present
+        force_init: false
+        init_reconfigure: false
+        variables: "{{ terraform_vars }}"
+        backend_config:
+          key: "{{ terraform_vars.tag_module_type + terraform_vars.tag_module_id + '.tfstate' }}"
+          container_name: "state"
+          storage_account_name: "{{ storage_account_name }}"
+          access_key: "{{ storage_access_key }}"
+      register: tf_output
+
+    - name: Output Terraform results
+      debug:
+        var: tf_output

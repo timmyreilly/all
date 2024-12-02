@@ -1,5 +1,5 @@
 ---
-- name: Build Hub and Spoke infrastructure 
+- name: Build Hub and Spoke infrastructure with Bastion
   hosts: localhost
   any_errors_fatal: true
   gather_facts: false
