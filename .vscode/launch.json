@@ -16,7 +16,25 @@
             "envFile": "${workspaceFolder}/.env"
         },
         {
-            "name": "Python: FastAPI (Uvicorn)",
+            "name": "webv1 Python: FastAPI (Uvicorn)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "app.main:app",
+                "--reload",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000"
+            ],
+            "jinja": true,
+            "env": {},
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/lab/webv1"
+        },
+        {
+            "name": "Chapp FastAPI (Uvicorn)",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",

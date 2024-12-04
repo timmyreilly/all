@@ -10,7 +10,7 @@ function CreateMessage() {
     try {
       const response = await api.post('/api/messages', { content });
       setMessage('Message created successfully!');
-      setContent('');
+      setContent(response.data.content);
     } catch (error) {
       setMessage('Error creating message');
     }
