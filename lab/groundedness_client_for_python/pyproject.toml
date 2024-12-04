@@ -17,6 +17,10 @@ pytest-cov = "^5.0.0"
 black = "^24.8.0"
 ruff = "^0.6.9"
 
+
+[tool.poetry.group.webv1.dependencies]
+python-multipart = "^0.0.19"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

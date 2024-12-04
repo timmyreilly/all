@@ -671,6 +671,17 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests", "pytest-xdist", "virtualenv"]
 
 [[package]]
+name = "python-multipart"
+version = "0.0.19"
+description = "A streaming multipart parser for Python"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "python_multipart-0.0.19-py3-none-any.whl", hash = "sha256:f8d5b0b9c618575bf9df01c684ded1d94a338839bdd8223838afacfb4bb2082d"},
+    {file = "python_multipart-0.0.19.tar.gz", hash = "sha256:905502ef39050557b7a6af411f454bc19526529ca46ae6831508438890ce12cc"},
+]
+
+[[package]]
 name = "pywin32"
 version = "307"
 description = "Python for Window Extensions"
@@ -787,4 +798,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "8ab413476e1fc9c04676728e41c473b40399fb9280e13ad6e53489db134bf043"
+content-hash = "3986a00007ece8f2e2f6d2da1c991c6c68ddd1aa376a718a26de1803567b0f7c"

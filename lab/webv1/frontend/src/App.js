@@ -9,7 +9,7 @@ function App() {
   return (
     <Router>
       <nav>
-        <Link to="/">Messages</Link> | <Link to="/create">Create Message</Link> | <Link to="/register">Register</Link> | <Link to="/login">Login</Link>
+        <Link to="/">Messages</Link> | <Link to="/create">Create Message</Link> | <Link to="/register">Register</Link> | <Link to="/login">Login</Link> | <a href="/docs" target="_blank" rel="noopener noreferrer">Docs</a>
       </nav>
       <Routes>
         <Route path="/" element={<MessageList />} />
