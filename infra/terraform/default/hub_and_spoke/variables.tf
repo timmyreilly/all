@@ -5,7 +5,6 @@ variable "subscription_id" {
 
 variable "unique" {
   description = "A unique identifier for naming resources."
-  default     = "che2"
 }
 
 variable "location" {
@@ -15,7 +14,6 @@ variable "location" {
 
 variable "admin_username" {
   description = "Admin username for the virtual machine."
-  default     = "che2-user"
 }
 
 variable "admin_password" {

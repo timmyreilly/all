@@ -133,13 +133,13 @@ resource "azurerm_subnet" "private_endpoint_subnet" {
 
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "web_app_private_endpoint" {
-  name                = "pep-app-${var.unique}"
+  name                = "pe-app-${var.unique}"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   subnet_id           = azurerm_subnet.private_endpoint_subnet.id
 
   private_service_connection {
-    name                           = "pep-${var.unique}-web"
+    name                           = "pe-${var.unique}-web"
     private_connection_resource_id = azurerm_linux_web_app.web_app.id
     subresource_names              = ["sites"]
     is_manual_connection           = false

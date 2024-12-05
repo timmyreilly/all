@@ -18,13 +18,13 @@
     # Terraform Variables
     terraform_vars:
       subscription_id: "{{ subscription_id | mandatory }}"
-      # resource_group_name: "{{ resource_group_name | mandatory }}"
       # location_east_us: "{{ location_east_us | default('East US') }}"
       location: "{{ location_west_us | default('West US') }}"
       admin_username: "{{ lookup('env', 'ADMIN_USER') | mandatory }}"
       admin_password: "{{ lookup('env', 'ADMIN_PASSWORD') | mandatory }}"
       tag_module_id: "{{ module_state_id | default(module_id) }}"
       tag_module_type: hubspo
+      unique: "{{ unique | mandatory }}"
 
     azure_vars: 
       location: "{{ location_west_us | default('West US') }}"
@@ -68,12 +68,12 @@
 
     - name: Set Terraform directory
       set_fact:
-        terraform_dir: "../../terraform/default/hub_and_spoke/"
+        terraform_dir: "../terraform/default/hub_and_spoke/"
 
     - name: Initialize and apply Terraform just vnet and bastion configuration
       community.general.terraform:
         project_path: "{{ terraform_dir }}"
-        state: absent
+        state: present
         force_init: false
         init_reconfigure: false
         variables: "{{ terraform_vars }}"
@@ -93,7 +93,7 @@
 
     - name: Initialize and apply firewall terraform configuration
       community.general.terraform:
-        project_path: "../../terraform/default/firewall_and_route_tables" # "{{ terraform_dir }}"
+        project_path: "../terraform/default/firewall_and_route_tables" # "{{ terraform_dir }}"
         state: absent
         force_init: false
         init_reconfigure: false
@@ -119,13 +119,13 @@
 
     - name: Package FastAPI app code
       archive:
-        path: "../../../lab/backend/"
+        path: "../../lab/backend/"
         dest: "/tmp/fast_api_web_app.zip"
         format: zip
 
     - name: Package Original Lab Code 
       archive:
-        path: "../../../lab/smoke_test/backend/"
+        path: "../../lab/smoke_test/backend/"
         dest: "/tmp/web_app.zip"
         format: zip
 
