@@ -8,6 +8,12 @@ class AbstractRepository(abc.ABC):
     def __init__(self):
         self.seen = set()  # type: Set[model.Product]
 
+    def get_by_transcriptref(self, transcript_ref: str) -> list[model.Prediction]:
+        prediction = self._get_by_transcriptref(transcript_ref)
+        if prediction: 
+            self.seen.add(prediction)
+        return [prediction]
+
 
 class SqlAlchemyRepository(AbstractRepository):
     def __init__(self, session):
