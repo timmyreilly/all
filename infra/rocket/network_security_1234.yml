@@ -12,8 +12,8 @@
 
   vars:
     # Environment Variables for Terraform Backend (Storage Account)
-    storage_access_key: "{{ lookup('env', 'ARM_ACCESS_KEY') | mandatory }}"
-    storage_account_name: "{{ lookup('env', 'STORAGE_ACCOUNT_NAME') | mandatory }}"
+    # storage_access_key: "{{ lookup('env', 'ARM_ACCESS_KEY') | mandatory }}"
+    # storage_account_name: "{{ lookup('env', 'STORAGE_ACCOUNT_NAME') | mandatory }}"
 
     # Terraform Variables
     terraform_vars:
@@ -33,10 +33,10 @@
 
 
   tasks:
-    - name: List all resource groups
-      azure_rm_resourcegroup_info:
-        auth_source: "auto"  # Automatically use `az login` credentials
-      register: resource_groups
+    # - name: List all resource groups
+    #   azure_rm_resourcegroup_info:
+    #     auth_source: "auto"  # Automatically use `az login` credentials
+    #   register: resource_groups
 
     # - debug:
     #     var: resource_groups
@@ -66,13 +66,9 @@
       set_fact:
         subscription_id: "{{ subscription_id_output.stdout }}"
 
-    - name: Set Terraform directory
-      set_fact:
-        terraform_dir: "../terraform/default/hub_and_spoke/"
-
-    - name: Initialize and apply Terraform just vnet and bastion configuration
+    - name: Initialize and apply Terraform just vnet hub and spoke
       community.general.terraform:
-        project_path: "{{ terraform_dir }}"
+        project_path: "./terraform/hub_and_spoke_simple"
         state: present
         force_init: false
         init_reconfigure: false
@@ -80,8 +76,24 @@
         backend_config:
           key: "{{ terraform_vars.tag_module_type + terraform_vars.tag_module_id + '.tfstate' }}"
           container_name: "state"
-          storage_account_name: "{{ storage_account_name }}"
-          access_key: "{{ storage_access_key }}"
+          storage_account_name: "{{ dev_core_storage_account }}"
+          access_key: "{{ access_key }}"
+      environment:
+        ARM_SUBSCRIPTION_ID: "{{ subscription_id_output.stdout }}"
+      register: tf_output
+
+    - name: Initialize and apply Terraform vm and bastion configuration
+      community.general.terraform:
+        project_path: "./terraform/vm_and_bastion/"
+        state: absent
+        force_init: false
+        init_reconfigure: false
+        variables: "{{ terraform_vars }}"
+        backend_config:
+          key: "{{ terraform_vars.tag_module_type + terraform_vars.tag_module_id + '.tfstate' }}"
+          container_name: "state"
+          storage_account_name: "{{ dev_core_storage_account }}"
+          access_key: "{{ access_key }}"
       environment:
         ARM_SUBSCRIPTION_ID: "{{ subscription_id_output.stdout }}"
       register: tf_output
@@ -93,7 +105,7 @@
 
     - name: Initialize and apply firewall terraform configuration
       community.general.terraform:
-        project_path: "../terraform/default/firewall_and_route_tables" # "{{ terraform_dir }}"
+        project_path: "./terraform/firewall_and_route_tables" # "{{ terraform_dir }}"
         state: absent
         force_init: false
         init_reconfigure: false
@@ -101,8 +113,8 @@
         backend_config:
           key: "{{ terraform_vars.tag_module_type + terraform_vars.tag_module_id + '.tfstate' }}"
           container_name: "state"
-          storage_account_name: "{{ storage_account_name }}"
-          access_key: "{{ storage_access_key }}"
+          storage_account_name: "{{ dev_core_storage_account }}"
+          access_key: "{{ access_key }}"
       environment:
         ARM_SUBSCRIPTION_ID: "{{ subscription_id_output.stdout }}"
       register: tf_output

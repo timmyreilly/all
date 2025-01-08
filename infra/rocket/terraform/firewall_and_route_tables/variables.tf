@@ -5,6 +5,7 @@ variable "subscription_id" {
 
 variable "unique" {
   description = "A unique identifier for naming resources."
+  default     = "che2"
 }
 
 variable "location" {
@@ -14,6 +15,7 @@ variable "location" {
 
 variable "admin_username" {
   description = "Admin username for the virtual machine."
+  default     = "che2-user"
 }
 
 variable "admin_password" {
@@ -37,7 +39,7 @@ variable "vm_image" {
   default = {
     publisher = "MicrosoftWindowsDesktop"
     offer     = "windows-11"
-    sku       = "win11-22h2-pro"
+    sku       = "win11-21h2-pro"
     version   = "latest"
   }
 }

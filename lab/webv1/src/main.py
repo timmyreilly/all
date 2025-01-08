@@ -2,9 +2,9 @@ import logging
 import os
 from typing import List
 
-from app.dependencies import container, engine, get_db_session
-from app.models import Base, Message, User
-from app.schemas import (MessageResponse, MessageSchema, UserCreate,
+from src.dependencies import container, engine, get_db_session
+from src.models import Base, Message, User
+from src.schemas import (MessageResponse, MessageSchema, UserCreate,
                          UserResponse)
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
 from lagom.integrations.fast_api import FastApiIntegration
@@ -23,7 +23,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
-    expire = datetime.now(datetime.timezone.utc) + (expires_delta or timedelta(minutes=15))
+    expire = datetime.now() + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

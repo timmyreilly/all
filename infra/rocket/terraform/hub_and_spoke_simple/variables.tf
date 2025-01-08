@@ -14,6 +14,7 @@ variable "location" {
 
 variable "admin_username" {
   description = "Admin username for the virtual machine."
+  default     = "che2-user"
 }
 
 variable "admin_password" {
@@ -37,7 +38,7 @@ variable "vm_image" {
   default = {
     publisher = "MicrosoftWindowsDesktop"
     offer     = "windows-11"
-    sku       = "win11-22h2-pro"
+    sku       = "win11-21h2-pro"
     version   = "latest"
   }
 }
@@ -51,5 +52,5 @@ variable "tag_module_id" {
 variable "tag_module_type" {
   description = "type of module represented" 
   type        = string 
-  default     = "hub_and_spoke" 
+  default     = "hub_and_spoke_simple" 
 }

@@ -18,6 +18,9 @@ sqlalchemy = "^2.0.36"
 pydantic = "^2.9.2"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-multipart = "^0.0.19"
+redis = "^5.2.1"
+tenacity = "^9.0.0"
+httpx = "^0.28.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"

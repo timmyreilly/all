@@ -15,6 +15,7 @@ class UserResponse(BaseModel):
 
 class MessageSchema(BaseModel):
     content: str
+    user_id: int = 0
 
 class MessageResponse(BaseModel):
     id: int
