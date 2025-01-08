@@ -8,6 +8,10 @@ class AbstractRepository(abc.ABC):
     def __init__(self):
         self.seen = set()  # type: Set[model.Product]
 
+    @abc.abstractmethod
+    def _get_by_transcriptref(self, transcriptref) -> model.Prediction:
+        raise NotImplementedError
+
     def get_by_transcriptref(self, transcript_ref: str) -> list[model.Prediction]:
         prediction = self._get_by_transcriptref(transcript_ref)
         if prediction: 
@@ -22,3 +26,14 @@ class SqlAlchemyRepository(AbstractRepository):
 
     def _add(self, product):
         self.session.add(product)
+
+    def _get_by_transcriptref(self, transcriptref):
+        return (
+            self.session.query(model.Prediction)
+            .join(model.Transcript)
+            .filter(orm.transcripts.c.reference == transcriptref,)
+            .first()
+        )
+
+    def add(self, prediction: model.Prediction):
+        self.session.add(prediction)

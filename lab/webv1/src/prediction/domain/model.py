@@ -6,12 +6,19 @@ from . import commands, events
 
 
 class Prediction:
-    def __init__(self, sku: str, transcript: List[Transcript], version_number: int = 0):
+    def __init__(self, sku: str, transcript: List[Transcript], version_number: int = 0, id: Optional[str] = None, results: Optional[List[dict]] = None):
+        self.id = None
         self.sku = sku
         self.transcript = transcript
+        self.results = []
         self.version_number = version_number
         self.events = []  # type: List[events.Event]
 
+@dataclass(unsafe_hash=True)
+class PredictionLine:
+    predictionid: str
+    citation: str
+    text: str
 
 class Transcript:
     def __init__(self, ref: str, sku: str, quality: int, eta: Optional[date]):
@@ -19,4 +26,8 @@ class Transcript:
         self.sku = sku
         self.eta = eta
         self._transcript_quality = quality
-        self._allocations = set()  # type: Set[OrderLine]
+        self._predictions = set()  # type: Set[OrderLine]
+
+    @property
+    def is_complete(self):
+        return all(allocation.is_complete for allocation in self._allocations)
