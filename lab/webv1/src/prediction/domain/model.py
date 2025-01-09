@@ -20,6 +20,20 @@ class PredictionLine:
     citation: str
     text: str
 
+@dataclass(frozen=True)
+class Feedback:
+    sku: str
+    transcript: str
+    score: float
+
+@dataclass(frozen=True)
+class QuestionAnswerPair:
+    question: str
+    answer: str
+
+
+# entities are identified by a reference, a transcript has persistent identity
+
 class Transcript:
     def __init__(self, ref: str, sku: str, quality: int, eta: Optional[date]):
         self.blob_reference = ref
@@ -27,6 +41,14 @@ class Transcript:
         self.eta = eta
         self._transcript_quality = quality
         self._predictions = set()  # type: Set[OrderLine]
+
+    def __hash__(self):
+        return hash(self.blob_reference)
+    
+    def __eq__(self, other):
+        if not isinstance(other, Transcript):
+            return False
+        return other.blob_reference == self.blob_reference
 
     @property
     def is_complete(self):
